@@ -1,4 +1,4 @@
-// US cities with population greater than 250,000
+// US cities: major metros (250,000+) and smaller cities near amusement parks & tourist attractions
 export interface Destination {
   id: string;
   name: string;
@@ -10,7 +10,7 @@ export interface Destination {
 }
 
 export const destinations: Destination[] = [
-  // Top 100 US cities by population (250,000+)
+  // Major US cities by population (250,000+)
 
   // New York
   { id: "new-york", name: "New York City", state: "NY", lat: 40.7128, lon: -74.0060, description: "The city that never sleeps", population: 8336817 },
@@ -197,4 +197,69 @@ export const destinations: Destination[] = [
 
   // Idaho
   { id: "boise", name: "Boise", state: "ID", lat: 43.6150, lon: -116.2023, description: "City of Trees", population: 235684 },
+
+  // --- Smaller cities near amusement parks & popular tourist attractions ---
+
+  // Amusement park destinations
+  { id: "sandusky", name: "Sandusky", state: "OH", lat: 41.4489, lon: -82.7080, description: "Home of Cedar Point roller coasters", population: 25793 },
+  { id: "pigeon-forge", name: "Pigeon Forge", state: "TN", lat: 35.7884, lon: -83.5542, description: "Home of Dollywood theme park", population: 6349 },
+  { id: "branson", name: "Branson", state: "MO", lat: 36.6437, lon: -93.2185, description: "Silver Dollar City and live shows", population: 12638 },
+  { id: "williamsburg", name: "Williamsburg", state: "VA", lat: 37.2707, lon: -76.7075, description: "Busch Gardens and Colonial Williamsburg", population: 15425 },
+  { id: "hershey", name: "Hershey", state: "PA", lat: 40.2856, lon: -76.6500, description: "Hersheypark and Chocolate World", population: 14981 },
+  { id: "wisconsin-dells", name: "Wisconsin Dells", state: "WI", lat: 43.6275, lon: -89.7710, description: "Waterpark Capital of the World", population: 2933 },
+  { id: "carlsbad", name: "Carlsbad", state: "CA", lat: 33.1581, lon: -117.3506, description: "LEGOLAND California and flower fields", population: 114746 },
+  { id: "kissimmee", name: "Kissimmee", state: "FL", lat: 28.2920, lon: -81.4076, description: "Gateway to Walt Disney World", population: 79226 },
+  { id: "gurnee", name: "Gurnee", state: "IL", lat: 42.3703, lon: -87.9020, description: "Six Flags Great America", population: 30295 },
+  { id: "santa-cruz", name: "Santa Cruz", state: "CA", lat: 36.9741, lon: -122.0308, description: "Beach Boardwalk and surf culture", population: 64608 },
+
+  // Six Flags amusement park cities
+  { id: "jackson-nj", name: "Jackson", state: "NJ", lat: 40.0984, lon: -74.3585, description: "Six Flags Great Adventure", population: 58073 },
+  { id: "santa-clarita", name: "Santa Clarita", state: "CA", lat: 34.3917, lon: -118.5426, description: "Six Flags Magic Mountain", population: 228673 },
+  { id: "agawam", name: "Agawam", state: "MA", lat: 42.0701, lon: -72.6148, description: "Six Flags New England", population: 28438 },
+  { id: "vallejo", name: "Vallejo", state: "CA", lat: 38.1041, lon: -122.2566, description: "Six Flags Discovery Kingdom", population: 121692 },
+  { id: "austell", name: "Austell", state: "GA", lat: 33.8126, lon: -84.6344, description: "Six Flags Over Georgia", population: 7009 },
+  { id: "eureka-mo", name: "Eureka", state: "MO", lat: 38.5025, lon: -90.6290, description: "Six Flags St. Louis", population: 11488 },
+  { id: "upper-marlboro", name: "Upper Marlboro", state: "MD", lat: 38.8159, lon: -76.7497, description: "Six Flags America", population: 14919 },
+  { id: "darien-center", name: "Darien Center", state: "NY", lat: 42.8920, lon: -78.3842, description: "Six Flags Darien Lake", population: 3061 },
+
+  // Cedar Fair amusement park cities
+  { id: "buena-park", name: "Buena Park", state: "CA", lat: 33.8675, lon: -117.9981, description: "Knott's Berry Farm theme park", population: 82882 },
+  { id: "mason-oh", name: "Mason", state: "OH", lat: 39.3601, lon: -84.3099, description: "Kings Island theme park", population: 34909 },
+  { id: "doswell", name: "Doswell", state: "VA", lat: 37.8618, lon: -77.4733, description: "Kings Dominion theme park", population: 298 },
+  { id: "santa-clara", name: "Santa Clara", state: "CA", lat: 37.3541, lon: -121.9552, description: "California's Great America theme park", population: 127647 },
+  { id: "allentown", name: "Allentown", state: "PA", lat: 40.6084, lon: -75.4902, description: "Dorney Park & Wildwater Kingdom", population: 126092 },
+  { id: "shakopee", name: "Shakopee", state: "MN", lat: 44.7974, lon: -93.5272, description: "Valleyfair theme park", population: 41873 },
+  { id: "muskegon", name: "Muskegon", state: "MI", lat: 43.2342, lon: -86.2484, description: "Michigan's Adventure theme park", population: 38318 },
+
+  // National park & natural attraction gateways
+  { id: "flagstaff", name: "Flagstaff", state: "AZ", lat: 35.1983, lon: -111.6513, description: "Gateway to the Grand Canyon", population: 73964 },
+  { id: "rapid-city", name: "Rapid City", state: "SD", lat: 44.0805, lon: -103.2310, description: "Near Mount Rushmore and Badlands", population: 77503 },
+  { id: "jackson", name: "Jackson", state: "WY", lat: 43.4799, lon: -110.7624, description: "Gateway to Grand Teton and Yellowstone", population: 10532 },
+  { id: "moab", name: "Moab", state: "UT", lat: 38.5733, lon: -109.5498, description: "Gateway to Arches and Canyonlands", population: 5341 },
+  { id: "bar-harbor", name: "Bar Harbor", state: "ME", lat: 44.3876, lon: -68.2039, description: "Gateway to Acadia National Park", population: 5089 },
+  { id: "estes-park", name: "Estes Park", state: "CO", lat: 40.3772, lon: -105.5217, description: "Gateway to Rocky Mountain National Park", population: 6300 },
+  { id: "gatlinburg", name: "Gatlinburg", state: "TN", lat: 35.7143, lon: -83.5102, description: "Gateway to Great Smoky Mountains", population: 4164 },
+  { id: "sedona", name: "Sedona", state: "AZ", lat: 34.8697, lon: -111.7610, description: "Red rock formations and hiking trails", population: 10336 },
+  { id: "durango", name: "Durango", state: "CO", lat: 37.2753, lon: -107.8801, description: "Near Mesa Verde and historic railroad", population: 19999 },
+  { id: "cape-canaveral", name: "Cape Canaveral", state: "FL", lat: 28.3922, lon: -80.6077, description: "Kennedy Space Center and rocket launches", population: 10411 },
+  { id: "park-city", name: "Park City", state: "UT", lat: 40.6461, lon: -111.4980, description: "Olympic ski resort and Sundance Film Festival", population: 8376 },
+
+  // Beach & boardwalk resort towns
+  { id: "myrtle-beach", name: "Myrtle Beach", state: "SC", lat: 33.6891, lon: -78.8867, description: "Grand Strand boardwalk and amusements", population: 35682 },
+  { id: "key-west", name: "Key West", state: "FL", lat: 24.5551, lon: -81.7800, description: "Southernmost point and island paradise", population: 25478 },
+  { id: "galveston", name: "Galveston", state: "TX", lat: 29.3013, lon: -94.7977, description: "Pleasure Pier and historic Strand district", population: 53695 },
+  { id: "daytona-beach", name: "Daytona Beach", state: "FL", lat: 29.2108, lon: -81.0228, description: "Daytona Speedway and beach boardwalk", population: 72647 },
+  { id: "ocean-city", name: "Ocean City", state: "MD", lat: 38.3365, lon: -75.0849, description: "Boardwalk amusements and beach resort", population: 6924 },
+  { id: "destin", name: "Destin", state: "FL", lat: 30.3935, lon: -86.4958, description: "Emerald Coast beaches and Big Kahuna's", population: 14431 },
+  { id: "panama-city-beach", name: "Panama City Beach", state: "FL", lat: 30.1766, lon: -85.8055, description: "Pier Park and Gulf Coast beaches", population: 12018 },
+
+  // Historic & cultural tourist destinations
+  { id: "savannah", name: "Savannah", state: "GA", lat: 32.0809, lon: -81.0912, description: "Historic squares and riverfront district", population: 147780 },
+  { id: "asheville", name: "Asheville", state: "NC", lat: 35.5951, lon: -82.5515, description: "Biltmore Estate and Blue Ridge Parkway", population: 94067 },
+  { id: "santa-fe", name: "Santa Fe", state: "NM", lat: 35.6870, lon: -105.9378, description: "Historic art galleries and adobe architecture", population: 88340 },
+  { id: "napa", name: "Napa", state: "CA", lat: 38.2975, lon: -122.2869, description: "World-famous wine country", population: 78130 },
+  { id: "monterey", name: "Monterey", state: "CA", lat: 36.6002, lon: -121.8947, description: "Monterey Bay Aquarium and Cannery Row", population: 30045 },
+  { id: "traverse-city", name: "Traverse City", state: "MI", lat: 44.7631, lon: -85.6206, description: "Sleeping Bear Dunes and cherry capital", population: 15678 },
+  { id: "knoxville", name: "Knoxville", state: "TN", lat: 35.9606, lon: -83.9207, description: "Gateway to the Great Smoky Mountains", population: 190740 },
+  { id: "bend", name: "Bend", state: "OR", lat: 44.0582, lon: -121.3153, description: "Outdoor recreation and craft breweries", population: 102059 },
 ];

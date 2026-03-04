@@ -17,9 +17,31 @@ export interface WeatherData {
   forecast: DayForecast[];
 }
 
+export type WeatherCondition = "any" | "sunny" | "cloudy" | "rainy" | "snowy" | "stormy";
+
+export const weatherConditionLabels: Record<WeatherCondition, string> = {
+  any: "Any Weather",
+  sunny: "Sunny",
+  cloudy: "Cloudy",
+  rainy: "Rainy",
+  snowy: "Snowy",
+  stormy: "Stormy",
+};
+
+export function getWeatherCategory(code: number): WeatherCondition {
+  if (code === 0 || code === 1) return "sunny";
+  if ((code >= 2 && code <= 3) || (code >= 45 && code <= 48)) return "cloudy";
+  if (code >= 51 && code <= 67) return "rainy";
+  if (code >= 71 && code <= 77) return "snowy";
+  if (code >= 80 && code <= 82) return "rainy";
+  if (code >= 85 && code <= 86) return "snowy";
+  if (code >= 95) return "stormy";
+  return "cloudy";
+}
+
 export async function getWeatherForLocation(lat: number, lon: number): Promise<WeatherData | null> {
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weather_code&temperature_unit=fahrenheit&timezone=auto&forecast_days=7`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weather_code&temperature_unit=fahrenheit&timezone=auto&forecast_days=10`;
 
     const response = await fetch(url);
     if (!response.ok) return null;
@@ -30,7 +52,7 @@ export async function getWeatherForLocation(lat: number, lon: number): Promise<W
     const minTemp = data.daily.temperature_2m_min[0];
     const weatherCode = data.daily.weather_code[0];
 
-    // Build 7-day forecast
+    // Build 10-day forecast
     const forecast: DayForecast[] = data.daily.time.map((date: string, i: number) => {
       const dateObj = new Date(date + "T12:00:00");
       const dayName = i === 0 ? "Today" : i === 1 ? "Tomorrow" : dateObj.toLocaleDateString("en-US", { weekday: "short" });
@@ -58,47 +80,36 @@ export async function getWeatherForLocation(lat: number, lon: number): Promise<W
   }
 }
 
-export async function getWeatherForMultipleLocations(
-  locations: { lat: number; lon: number }[]
-): Promise<(WeatherData | null)[]> {
-  // Open-Meteo doesn't have a batch endpoint, so we fetch in parallel
-  const promises = locations.map(loc => getWeatherForLocation(loc.lat, loc.lon));
-  return Promise.all(promises);
+export function getMatchingDaysCount(
+  weather: WeatherData | null,
+  minTemp: number | null,
+  maxTemp: number | null,
+  weatherCondition: WeatherCondition
+): number {
+  if (!weather || !weather.forecast) return 0;
+  return weather.forecast.filter(day => {
+    const meetsMin = minTemp === null || day.maxTemp >= minTemp;
+    const meetsMax = maxTemp === null || day.maxTemp <= maxTemp;
+    const meetsWeather = weatherCondition === "any" || getWeatherCategory(day.weatherCode) === weatherCondition;
+    return meetsMin && meetsMax && meetsWeather;
+  }).length;
 }
 
-// Check if any day in the 7-day forecast meets the temperature threshold
-export function hasWarmDayInForecast(weather: WeatherData | null, threshold: number): boolean {
-  if (!weather || !weather.forecast) return false;
-  return weather.forecast.some(day => day.maxTemp >= threshold);
-}
-
-// Check if any day in the 7-day forecast is below the max temperature threshold
-export function hasCoolDayInForecast(weather: WeatherData | null, maxTemp: number): boolean {
-  if (!weather || !weather.forecast) return false;
-  return weather.forecast.some(day => day.maxTemp <= maxTemp);
-}
-
-// Combined filter: check if destination meets both min and max temp criteria
+// Combined filter: check if destination meets temp and weather criteria
 export function meetsTemperatureCriteria(
   weather: WeatherData | null,
   minTemp: number | null,
-  maxTemp: number | null
+  maxTemp: number | null,
+  weatherCondition: WeatherCondition = "any"
 ): boolean {
   if (!weather || !weather.forecast) return false;
 
   return weather.forecast.some(day => {
     const meetsMin = minTemp === null || day.maxTemp >= minTemp;
     const meetsMax = maxTemp === null || day.maxTemp <= maxTemp;
-    return meetsMin && meetsMax;
+    const meetsWeather = weatherCondition === "any" || getWeatherCategory(day.weatherCode) === weatherCondition;
+    return meetsMin && meetsMax && meetsWeather;
   });
-}
-
-// Get the warmest day in the forecast
-export function getWarmestDay(weather: WeatherData | null): DayForecast | null {
-  if (!weather || !weather.forecast || weather.forecast.length === 0) return null;
-  return weather.forecast.reduce((warmest, day) =>
-    day.maxTemp > warmest.maxTemp ? day : warmest
-  , weather.forecast[0]);
 }
 
 function getWeatherCondition(code: number): string {
@@ -147,4 +158,45 @@ function getWeatherIcon(code: number): string {
   if (code >= 85 && code <= 86) return "🌨️";
   if (code >= 95) return "⛈️";
   return "🌡️";
+}
+
+// Hourly weather for route forecasts
+export interface HourlyForecast {
+  time: string; // ISO datetime string
+  temperature: number;
+  weatherCode: number;
+  icon: string;
+  condition: string;
+  windSpeed: number;
+  humidity: number;
+  precipitationProbability: number;
+}
+
+export async function getHourlyWeatherForLocation(
+  lat: number,
+  lon: number,
+  forecastDays: number = 16
+): Promise<HourlyForecast[] | null> {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weather_code,precipitation_probability,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=${forecastDays}`;
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    const data = await response.json();
+
+    const hourly: HourlyForecast[] = data.hourly.time.map((time: string, i: number) => ({
+      time,
+      temperature: Math.round(data.hourly.temperature_2m[i]),
+      weatherCode: data.hourly.weather_code[i],
+      icon: getWeatherIcon(data.hourly.weather_code[i]),
+      condition: getWeatherCondition(data.hourly.weather_code[i]),
+      windSpeed: Math.round(data.hourly.wind_speed_10m[i]),
+      humidity: 0,
+      precipitationProbability: Math.round(data.hourly.precipitation_probability?.[i] ?? 0),
+    }));
+
+    return hourly;
+  } catch (error) {
+    console.error("Hourly weather fetch error:", error);
+    return null;
+  }
 }

@@ -20,6 +20,8 @@ interface MapProps {
   selectedDestination: string | null;
   onSelectDestination: (id: string) => void;
   filterLabel: string;
+  weatherCondition?: string;
+  isVisible?: boolean;
 }
 
 export default function MapView({
@@ -28,11 +30,12 @@ export default function MapView({
   selectedDestination,
   onSelectDestination,
   filterLabel,
+  isVisible,
 }: MapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<globalThis.Map<string, L.CircleMarker>>(new globalThis.Map());
-  const userMarkerRef = useRef<L.CircleMarker | null>(null);
+  const userMarkerRef = useRef<L.Marker | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
 
   // Initialize map
@@ -68,6 +71,7 @@ export default function MapView({
     return () => {
       map.remove();
       mapRef.current = null;
+      userMarkerRef.current = null;
       setIsMapReady(false);
     };
   }, []);
@@ -79,13 +83,17 @@ export default function MapView({
     if (userMarkerRef.current) {
       userMarkerRef.current.setLatLng([userLocation.lat, userLocation.lon]);
     } else {
-      userMarkerRef.current = L.circleMarker([userLocation.lat, userLocation.lon], {
-        radius: 10,
-        fillColor: "#0a0a0a",
-        color: "#ffffff",
-        weight: 3,
-        opacity: 1,
-        fillOpacity: 1,
+      const blackDotIcon = L.divIcon({
+        className: "",
+        html: '<div style="width:20px;height:20px;background:#000000;border:3px solid #ffffff;border-radius:50%;box-shadow:0 0 4px rgba(0,0,0,0.4);"></div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+        popupAnchor: [0, -10],
+      });
+
+      userMarkerRef.current = L.marker([userLocation.lat, userLocation.lon], {
+        icon: blackDotIcon,
+        zIndexOffset: 1000,
       })
         .addTo(mapRef.current)
         .bindPopup("You are here");
@@ -143,6 +151,7 @@ export default function MapView({
         existingMarkers.set(dest.id, marker);
       }
     });
+
   }, [destinations, selectedDestination, onSelectDestination, isMapReady, filterLabel]);
 
   // Pan to selected destination
@@ -154,6 +163,16 @@ export default function MapView({
       mapRef.current.setView([dest.lat, dest.lon], 8, { animate: true });
     }
   }, [selectedDestination, destinations, isMapReady]);
+
+  // Invalidate size when visibility changes (e.g. mobile list/map toggle)
+  useEffect(() => {
+    if (!mapRef.current || !isMapReady || !isVisible) return;
+    // Small delay to let the container become visible before recalculating
+    const timer = setTimeout(() => {
+      mapRef.current?.invalidateSize();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [isVisible, isMapReady]);
 
   return (
     <div
