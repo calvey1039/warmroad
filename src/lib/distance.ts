@@ -1,5 +1,8 @@
 // Calculate distance between two coordinates using Haversine formula
 
+export const DEFAULT_MPG = 25;
+export const DEFAULT_GAS_PRICE = 2.93;
+
 export function calculateDistance(
   lat1: number,
   lon1: number,
@@ -24,7 +27,6 @@ function toRad(deg: number): number {
 }
 
 // Estimate drive time based on distance
-// Assuming average highway speed of 55 mph with breaks
 export function estimateDriveTime(distanceMiles: number): number {
   const avgSpeed = 55; // mph including traffic and breaks
   return distanceMiles / avgSpeed;
@@ -38,16 +40,69 @@ export function formatDriveTime(hours: number): string {
   return `${h} hr ${m} min`;
 }
 
-// Filter destinations within max drive time (hours)
-export function filterByDriveTime(
-  userLat: number,
-  userLon: number,
-  destinations: { lat: number; lon: number }[],
-  maxHours: number
-): boolean[] {
-  return destinations.map((dest) => {
-    const distance = calculateDistance(userLat, userLon, dest.lat, dest.lon);
-    const driveTime = estimateDriveTime(distance);
-    return driveTime <= maxHours;
-  });
+// Calculate round-trip fuel cost
+export function calculateFuelCost(distanceMiles: number, gasPrice: number, mpg: number): number {
+  const roundTripMiles = distanceMiles * 2;
+  const gallons = roundTripMiles / mpg;
+  return gallons * gasPrice;
+}
+
+export function formatFuelCost(cost: number): string {
+  return `$${cost.toFixed(0)}`;
+}
+
+// Waypoint along a route
+export interface RouteWaypoint {
+  lat: number;
+  lon: number;
+  hoursFromStart: number;
+  label: string; // e.g. "Start", "1 hr", "2 hrs", "Destination"
+  distanceFromStart: number; // miles from start
+  estimatedHour: number; // hours from departure
+}
+
+// Interpolate waypoints along a route with dynamic point count
+export function getRouteWaypoints(
+  fromLat: number,
+  fromLon: number,
+  toLat: number,
+  toLon: number,
+  originLabel: string = "Start",
+  destLabel: string = "Destination",
+  totalDistance?: number,
+  intermediateCount: number = 5
+): RouteWaypoint[] {
+  const dist = totalDistance ?? calculateDistance(fromLat, fromLon, toLat, toLon);
+  const totalHours = estimateDriveTime(dist);
+  const waypoints: RouteWaypoint[] = [];
+  const totalPoints = intermediateCount + 2; // include start and end
+
+  for (let i = 0; i < totalPoints; i++) {
+    const fraction = i / (totalPoints - 1);
+    const lat = fromLat + (toLat - fromLat) * fraction;
+    const lon = fromLon + (toLon - fromLon) * fraction;
+    const distFromStart = dist * fraction;
+    const hoursFromStart = distFromStart / 55;
+
+    let label: string;
+    if (i === 0) {
+      label = originLabel;
+    } else if (i === totalPoints - 1) {
+      label = destLabel;
+    } else {
+      const hrs = Math.round(hoursFromStart);
+      label = hrs === 1 ? "1 hr" : `${hrs} hrs`;
+    }
+
+    waypoints.push({
+      lat,
+      lon,
+      hoursFromStart,
+      label,
+      distanceFromStart: Math.round(distFromStart),
+      estimatedHour: hoursFromStart,
+    });
+  }
+
+  return waypoints;
 }
