@@ -222,6 +222,15 @@ export const destinations: Destination[] = [
   { id: "upper-marlboro", name: "Upper Marlboro", state: "MD", lat: 38.8159, lon: -76.7497, description: "Six Flags America", population: 14919 },
   { id: "darien-center", name: "Darien Center", state: "NY", lat: 42.8920, lon: -78.3842, description: "Six Flags Darien Lake", population: 3061 },
 
+  // Cedar Fair amusement park cities
+  { id: "buena-park", name: "Buena Park", state: "CA", lat: 33.8675, lon: -117.9981, description: "Knott's Berry Farm theme park", population: 82882 },
+  { id: "mason-oh", name: "Mason", state: "OH", lat: 39.3601, lon: -84.3099, description: "Kings Island theme park", population: 34909 },
+  { id: "doswell", name: "Doswell", state: "VA", lat: 37.8618, lon: -77.4733, description: "Kings Dominion theme park", population: 298 },
+  { id: "santa-clara", name: "Santa Clara", state: "CA", lat: 37.3541, lon: -121.9552, description: "California's Great America theme park", population: 127647 },
+  { id: "allentown", name: "Allentown", state: "PA", lat: 40.6084, lon: -75.4902, description: "Dorney Park & Wildwater Kingdom", population: 126092 },
+  { id: "shakopee", name: "Shakopee", state: "MN", lat: 44.7974, lon: -93.5272, description: "Valleyfair theme park", population: 41873 },
+  { id: "muskegon", name: "Muskegon", state: "MI", lat: 43.2342, lon: -86.2484, description: "Michigan's Adventure theme park", population: 38318 },
+
   // National park & natural attraction gateways
   { id: "flagstaff", name: "Flagstaff", state: "AZ", lat: 35.1983, lon: -111.6513, description: "Gateway to the Grand Canyon", population: 73964 },
   { id: "rapid-city", name: "Rapid City", state: "SD", lat: 44.0805, lon: -103.2310, description: "Near Mount Rushmore and Badlands", population: 77503 },
