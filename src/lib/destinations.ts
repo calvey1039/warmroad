@@ -212,6 +212,16 @@ export const destinations: Destination[] = [
   { id: "gurnee", name: "Gurnee", state: "IL", lat: 42.3703, lon: -87.9020, description: "Six Flags Great America", population: 30295 },
   { id: "santa-cruz", name: "Santa Cruz", state: "CA", lat: 36.9741, lon: -122.0308, description: "Beach Boardwalk and surf culture", population: 64608 },
 
+  // Six Flags amusement park cities
+  { id: "jackson-nj", name: "Jackson", state: "NJ", lat: 40.0984, lon: -74.3585, description: "Six Flags Great Adventure", population: 58073 },
+  { id: "santa-clarita", name: "Santa Clarita", state: "CA", lat: 34.3917, lon: -118.5426, description: "Six Flags Magic Mountain", population: 228673 },
+  { id: "agawam", name: "Agawam", state: "MA", lat: 42.0701, lon: -72.6148, description: "Six Flags New England", population: 28438 },
+  { id: "vallejo", name: "Vallejo", state: "CA", lat: 38.1041, lon: -122.2566, description: "Six Flags Discovery Kingdom", population: 121692 },
+  { id: "austell", name: "Austell", state: "GA", lat: 33.8126, lon: -84.6344, description: "Six Flags Over Georgia", population: 7009 },
+  { id: "eureka-mo", name: "Eureka", state: "MO", lat: 38.5025, lon: -90.6290, description: "Six Flags St. Louis", population: 11488 },
+  { id: "upper-marlboro", name: "Upper Marlboro", state: "MD", lat: 38.8159, lon: -76.7497, description: "Six Flags America", population: 14919 },
+  { id: "darien-center", name: "Darien Center", state: "NY", lat: 42.8920, lon: -78.3842, description: "Six Flags Darien Lake", population: 3061 },
+
   // National park & natural attraction gateways
   { id: "flagstaff", name: "Flagstaff", state: "AZ", lat: 35.1983, lon: -111.6513, description: "Gateway to the Grand Canyon", population: 73964 },
   { id: "rapid-city", name: "Rapid City", state: "SD", lat: 44.0805, lon: -103.2310, description: "Near Mount Rushmore and Badlands", population: 77503 },
