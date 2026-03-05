@@ -106,7 +106,7 @@ export default function DestinationCard({
     {
       id: "vrbo",
       name: "VRBO",
-      url: `https://vrbo.com/affiliate/ncpxw7r?destination=${encodedDest}`,
+      url: `https://www.vrbo.com/search?destination=${encodedDest}&startDate=${checkIn || ""}&endDate=${checkOut || ""}&adults=2&affcid=ncpxw7r`,
       icon: "\uD83C\uDFE1",
     },
     {
@@ -118,7 +118,7 @@ export default function DestinationCard({
     {
       id: "hotels",
       name: "Hotels.com",
-      url: `https://www.hotels.com/affiliate/FpWwOIV?destination=${encodedDest}`,
+      url: `https://www.hotels.com/Hotel-Search?destination=${encodedDest}&startDate=${checkIn || ""}&endDate=${checkOut || ""}&rooms=1&adults=2&affcid=FpWwOIV`,
       icon: "\uD83C\uDFE9",
     },
   ];
