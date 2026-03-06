@@ -12,6 +12,14 @@ interface Destination {
   lon: number;
   maxTemp?: number;
   meetsFilter?: boolean;
+  warmestDayTemp?: number;
+  warmestDayName?: string;
+  warmestDayDate?: string;
+  driveTimeFormatted?: string;
+  fuelCostFormatted?: string;
+  matchingDays?: number;
+  description?: string;
+  filterLabel?: string;
 }
 
 interface MapProps {
@@ -36,6 +44,7 @@ export default function MapView({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<globalThis.Map<string, L.CircleMarker>>(new globalThis.Map());
   const userMarkerRef = useRef<L.Marker | null>(null);
+  const activePopupRef = useRef<L.Popup | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
 
   // Initialize map
@@ -118,6 +127,46 @@ export default function MapView({
       }
     });
 
+    // Helper to build mini card popup HTML
+    const buildPopupHtml = (dest: Destination) => {
+      const meetsFilter = dest.meetsFilter === true;
+      const tempText = dest.warmestDayTemp !== undefined
+        ? `${dest.warmestDayTemp}°`
+        : dest.maxTemp !== undefined ? `${dest.maxTemp}°` : "";
+      const warmestLabel = dest.warmestDayName
+        ? `Warmest: ${dest.warmestDayName}${dest.warmestDayDate ? `, ${dest.warmestDayDate}` : ""}`
+        : "";
+      const matchBadge = dest.matchingDays && dest.matchingDays > 0
+        ? `<span style="display:inline-block;background:#fff7ed;color:#c2410c;font-size:10px;font-weight:600;padding:2px 8px;border-radius:9999px;margin-top:6px;">${dest.matchingDays} day${dest.matchingDays !== 1 ? "s" : ""} ${dest.filterLabel || ""}</span>`
+        : "";
+      const driveInfo = dest.driveTimeFormatted
+        ? `<span style="display:inline-block;background:#f4f4f5;color:#52525b;font-size:10px;padding:2px 8px;border-radius:9999px;">${dest.driveTimeFormatted} drive</span>`
+        : "";
+      const fuelInfo = dest.fuelCostFormatted
+        ? `<span style="display:inline-block;background:#ecfdf5;color:#047857;font-size:10px;padding:2px 8px;border-radius:9999px;">${dest.fuelCostFormatted} fuel RT</span>`
+        : "";
+      const descText = dest.description
+        ? `<p style="font-size:11px;color:#71717a;line-height:1.4;margin:6px 0 0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${dest.description}</p>`
+        : "";
+
+      return `<div style="min-width:200px;max-width:260px;font-family:system-ui,-apple-system,sans-serif;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:600;font-size:14px;color:#18181b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${dest.name}</div>
+            <div style="font-size:12px;color:#71717a;font-weight:500;">${dest.state}</div>
+          </div>
+          ${tempText ? `<div style="text-align:right;flex-shrink:0;">
+            <div style="font-size:22px;font-weight:300;color:#18181b;line-height:1;">${tempText}</div>
+            ${warmestLabel ? `<div style="font-size:9px;color:#a1a1aa;margin-top:2px;">${warmestLabel}</div>` : ""}
+          </div>` : ""}
+        </div>
+        ${descText}
+        ${matchBadge ? `<div style="margin-top:6px;">${matchBadge}</div>` : ""}
+        ${driveInfo || fuelInfo ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;">${driveInfo}${fuelInfo}</div>` : ""}
+        ${meetsFilter ? `<div style="height:2px;background:linear-gradient(to right,#fb923c,#f97316);border-radius:2px;margin-top:8px;"></div>` : ""}
+      </div>`;
+    };
+
     // Add or update markers
     destinations.forEach((dest) => {
       const isSelected = dest.id === selectedDestination;
@@ -136,10 +185,18 @@ export default function MapView({
         const marker = existingMarkers.get(dest.id)!;
         marker.setLatLng([dest.lat, dest.lon]);
         marker.setStyle(markerOptions);
+        // Update tooltip content
+        const tempText = dest.maxTemp !== undefined ? `${dest.maxTemp}°F today` : "Loading...";
+        const filterStatus = meetsFilter ? `${filterLabel} this week` : "Outside range";
+        marker.setTooltipContent(
+          `<strong>${dest.name}, ${dest.state}</strong><br/>${tempText}<br/><em>${filterStatus}</em>`
+        );
       } else {
         const marker = L.circleMarker([dest.lat, dest.lon], markerOptions)
           .addTo(map)
-          .on("click", () => onSelectDestination(dest.id));
+          .on("click", () => {
+            onSelectDestination(dest.id);
+          });
 
         const tempText = dest.maxTemp !== undefined ? `${dest.maxTemp}°F today` : "Loading...";
         const filterStatus = meetsFilter ? `${filterLabel} this week` : "Outside range";
@@ -151,6 +208,35 @@ export default function MapView({
         existingMarkers.set(dest.id, marker);
       }
     });
+
+    // Show popup for selected destination
+    if (selectedDestination && map) {
+      const dest = destinations.find(d => d.id === selectedDestination);
+      if (dest) {
+        // Close any existing popup
+        if (activePopupRef.current) {
+          map.closePopup(activePopupRef.current);
+        }
+        const popup = L.popup({
+          closeButton: true,
+          className: "mini-card-popup",
+          maxWidth: 280,
+          offset: [0, -12],
+        })
+          .setLatLng([dest.lat, dest.lon])
+          .setContent(buildPopupHtml(dest))
+          .openOn(map);
+        activePopupRef.current = popup;
+
+        // When popup is closed by user, deselect the destination
+        popup.on("remove", () => {
+          activePopupRef.current = null;
+        });
+      }
+    } else if (!selectedDestination && activePopupRef.current && map) {
+      map.closePopup(activePopupRef.current);
+      activePopupRef.current = null;
+    }
 
   }, [destinations, selectedDestination, onSelectDestination, isMapReady, filterLabel]);
 

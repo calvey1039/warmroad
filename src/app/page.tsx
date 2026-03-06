@@ -15,6 +15,9 @@ import {
 import {
   calculateDistance,
   estimateDriveTime,
+  formatDriveTime,
+  calculateFuelCost,
+  formatFuelCost,
   DEFAULT_MPG,
   DEFAULT_GAS_PRICE,
 } from "@/lib/distance";
@@ -358,25 +361,24 @@ export default function Home() {
 
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         <aside className={`${mobileView === "list" ? "flex" : "hidden"} md:flex w-full md:w-[380px] lg:w-[420px] flex-1 md:flex-none min-h-0 md:shrink-0 border-r border-zinc-100 dark:border-zinc-800 flex-col bg-white dark:bg-zinc-950 overflow-hidden`}>
+          {!isLoading && filteredDestinations.length > 0 && (
+            <div className="shrink-0 flex items-center justify-between px-3 md:px-4 py-2 border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+              <span className="text-[10px] md:text-xs text-zinc-400 dark:text-zinc-500">{filteredDestinations.length} result{filteredDestinations.length !== 1 ? "s" : ""}</span>
+              <div className="flex items-center gap-1">
+                <svg className="w-3 h-3 text-zinc-400 dark:text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" /></svg>
+                <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="text-xs bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-md px-2 py-1 cursor-pointer hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors appearance-auto">
+                  <option value="drive_time">Drive Time</option>
+                  <option value="best_match">Best Match (Most Days)</option>
+                  <option value="temp_high">Temp (Warmest)</option>
+                  <option value="temp_low">Temp (Coolest)</option>
+                  <option value="distance">Distance</option>
+                  <option value="name">Name (A-Z)</option>
+                </select>
+              </div>
+            </div>
+          )}
           <div className="flex-1 min-h-0 overflow-y-auto" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}>
             <div className="p-3 md:p-4 space-y-2 md:space-y-3">
-              {!isLoading && filteredDestinations.length > 0 && (
-                <div className="flex items-center justify-between pb-1">
-                  <span className="text-[10px] md:text-xs text-zinc-400 dark:text-zinc-500">{filteredDestinations.length} result{filteredDestinations.length !== 1 ? "s" : ""}</span>
-                  <div className="flex items-center gap-1">
-                    <svg className="w-3 h-3 text-zinc-400 dark:text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" /></svg>
-                    <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="text-xs bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-md px-2 py-1 cursor-pointer hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors appearance-auto">
-                      <option value="drive_time">Drive Time</option>
-                      <option value="best_match">Best Match (Most Days)</option>
-                      <option value="temp_high">Temp (Warmest)</option>
-                      <option value="temp_low">Temp (Coolest)</option>
-                      <option value="distance">Distance</option>
-                      <option value="name">Name (A-Z)</option>
-                    </select>
-                  </div>
-                </div>
-              )}
-
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-28 md:h-32 w-full rounded-lg" />)
               ) : filteredDestinations.length === 0 && !loadingWeather ? (
@@ -422,7 +424,30 @@ export default function Home() {
         <main className={`${mobileView === "map" ? "flex" : "hidden"} md:flex flex-1 relative min-h-[200px]`}>
           <MapView
             userLocation={userLocation}
-            destinations={destinationsWithWeather.map(d => ({ id: d.id, name: d.name, state: d.state, lat: d.lat, lon: d.lon, maxTemp: d.weather?.maxTemp, meetsFilter: meetsTemperatureCriteria(d.weather, currentFilter.min, currentFilter.max, weatherCondition) }))}
+            destinations={destinationsWithWeather.map(d => {
+              const warmestDay = d.weather?.forecast?.reduce(
+                (best, day) => (best ? (day.maxTemp > best.maxTemp ? day : best) : day),
+                d.weather?.forecast?.[0]
+              );
+              const matchingDays = d.weather ? getMatchingDaysCount(d.weather, currentFilter.min, currentFilter.max, weatherCondition) : 0;
+              return {
+                id: d.id,
+                name: d.name,
+                state: d.state,
+                lat: d.lat,
+                lon: d.lon,
+                maxTemp: d.weather?.maxTemp,
+                meetsFilter: meetsTemperatureCriteria(d.weather, currentFilter.min, currentFilter.max, weatherCondition),
+                warmestDayTemp: warmestDay?.maxTemp,
+                warmestDayName: warmestDay?.dayName,
+                warmestDayDate: warmestDay?.date ? new Date(warmestDay.date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }) : undefined,
+                driveTimeFormatted: formatDriveTime(d.driveTime),
+                fuelCostFormatted: formatFuelCost(calculateFuelCost(d.distance, gasPrice, mpg)),
+                matchingDays,
+                description: d.description,
+                filterLabel: currentFilter.label,
+              };
+            })}
             selectedDestination={selectedDestination}
             onSelectDestination={handleSelectDestination}
             filterLabel={currentFilter.label}
