@@ -20,6 +20,10 @@ interface Destination {
   matchingDays?: number;
   description?: string;
   filterLabel?: string;
+  routeWeatherUrl?: string;
+  lodgingUrl?: string;
+  flightsUrl?: string;
+  carsUrl?: string;
 }
 
 interface MapProps {
@@ -163,6 +167,12 @@ export default function MapView({
         ${descText}
         ${matchBadge ? `<div style="margin-top:6px;">${matchBadge}</div>` : ""}
         ${driveInfo || fuelInfo ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;">${driveInfo}${fuelInfo}</div>` : ""}
+        ${dest.routeWeatherUrl || dest.lodgingUrl || dest.flightsUrl || dest.carsUrl ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid #f4f4f5;">
+          ${dest.routeWeatherUrl ? `<a href="${dest.routeWeatherUrl}" style="font-size:10px;font-weight:500;color:#71717a;text-decoration:none;display:inline-flex;align-items:center;gap:2px;" onmouseover="this.style.color='#ea580c'" onmouseout="this.style.color='#71717a'">&#9729; Weather</a>` : ""}
+          ${dest.lodgingUrl ? `<a href="${dest.lodgingUrl}" target="_blank" rel="noopener noreferrer" style="font-size:10px;font-weight:500;color:#71717a;text-decoration:none;display:inline-flex;align-items:center;gap:2px;" onmouseover="this.style.color='#ea580c'" onmouseout="this.style.color='#71717a'">&#127976; Lodging</a>` : ""}
+          ${dest.flightsUrl ? `<a href="${dest.flightsUrl}" target="_blank" rel="noopener noreferrer" style="font-size:10px;font-weight:500;color:#71717a;text-decoration:none;display:inline-flex;align-items:center;gap:2px;" onmouseover="this.style.color='#ea580c'" onmouseout="this.style.color='#71717a'">&#9992; Flights</a>` : ""}
+          ${dest.carsUrl ? `<a href="${dest.carsUrl}" target="_blank" rel="noopener noreferrer" style="font-size:10px;font-weight:500;color:#71717a;text-decoration:none;display:inline-flex;align-items:center;gap:2px;" onmouseover="this.style.color='#ea580c'" onmouseout="this.style.color='#71717a'">&#128663; Cars</a>` : ""}
+        </div>` : ""}
         ${meetsFilter ? `<div style="height:2px;background:linear-gradient(to right,#fb923c,#f97316);border-radius:2px;margin-top:8px;"></div>` : ""}
       </div>`;
     };
