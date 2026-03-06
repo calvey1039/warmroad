@@ -1,0 +1,96 @@
+[
+  {
+    "city": "Chicago",
+    "slug": "warm-places-to-drive-from-chicago",
+    "intro": "Chicago winters are long and brutal, and by March most locals are ready to chase warmer air. Whether you are planning a spring break escape or a long weekend south, several destinations within a day's drive offer milder temperatures and outdoor fun. WarmRoad helps Chicago-area travelers find warm-weather road trips by showing real-time conditions along every route so you can hit the road with confidence.",
+    "destinations": [
+      {
+        "name": "Nashville",
+        "state": "Tennessee",
+        "driveTime": "7 hours",
+        "description": "Nashville sits seven hours south and runs 10–15 degrees warmer than Chicago in spring. Live music, walkable honky-tonks, and a growing food scene make it an easy weekend road trip pick."
+      },
+      {
+        "name": "Louisville",
+        "state": "Kentucky",
+        "driveTime": "4.5 hours",
+        "description": "Louisville is a quick four-and-a-half-hour drive with noticeably warmer spring air. Bourbon distillery tours, the Louisville Slugger Museum, and leafy Cherokee Park fill a solid long weekend."
+      },
+      {
+        "name": "Gatlinburg",
+        "state": "Tennessee",
+        "driveTime": "8 hours",
+        "description": "Gatlinburg sits at the doorstep of Great Smoky Mountains National Park, where spring wildflowers bloom weeks before they appear in Illinois. The scenic Kentucky drive alone is worth the eight-hour trip."
+      },
+      {
+        "name": "Asheville",
+        "state": "North Carolina",
+        "driveTime": "9 hours",
+        "description": "Asheville offers mild mountain air, craft breweries, and the Blue Ridge Parkway right outside town. At nine hours from Chicago it rewards a two-day getaway with some of the best spring hiking in the Southeast."
+      },
+      {
+        "name": "St. Louis",
+        "state": "Missouri",
+        "driveTime": "4.5 hours",
+        "description": "St. Louis is one of the closest warm escapes from Chicago—just four and a half hours on I-55. Forest Park, the free zoo, and toasted ravioli make it a budget-friendly spring weekend."
+      },
+      {
+        "name": "Cincinnati",
+        "state": "Ohio",
+        "driveTime": "4.5 hours",
+        "description": "Cincinnati's riverfront restaurants and Over-the-Rhine neighborhood are great for a quick spring getaway. The drive is easy, the weather runs warmer, and the Cincinnati Zoo keeps families busy all weekend."
+      }
+    ],
+    "weatherSection": "Driving south from Chicago means crossing several weather zones in a single trip. Conditions can shift quickly between Illinois, Indiana, and the Tennessee hills, especially in spring when storms roll through the Ohio Valley. Use WarmRoad's [route weather tool](/route-weather) to see conditions mile by mile before you leave.",
+    "toolSection": "WarmRoad makes it simple to find warmer destinations within driving distance of Chicago. Enter your starting point and preferred drive time, and the tool surfaces cities where the weather is better right now. Browse more ideas on our [road trip ideas](/road-trip-ideas) page to plan your next warm escape.",
+    "seoTitle": "Chicago Warm Places to Drive | WarmRoad",
+    "seoDescription": "Find warm road trip destinations within driving distance of Chicago. Check route weather and discover sunny getaways with WarmRoad."
+  },
+  {
+    "city": "Detroit",
+    "slug": "warm-places-to-drive-from-detroit",
+    "intro": "Detroit winters drag on well into spring, and Great Lakes wind chill makes even April feel cold. For drivers ready to trade gray skies for sunshine, several warmer cities sit within a reasonable drive south. WarmRoad helps Detroit-area travelers plan road trips to warmer destinations by showing live conditions along the route so you know what to expect before you leave.",
+    "destinations": [
+      {
+        "name": "Louisville",
+        "state": "Kentucky",
+        "driveTime": "5.5 hours",
+        "description": "Louisville is a manageable five-and-a-half-hour drive from Detroit and reliably warmer in spring. Bourbon trail tours, Waterfront Park, and Derby culture make it perfect for a long weekend."
+      },
+      {
+        "name": "Cincinnati",
+        "state": "Ohio",
+        "driveTime": "4 hours",
+        "description": "Cincinnati is one of Detroit's closest warm-weather options at just four hours south. Mild spring days along the Ohio River, Findlay Market, and a strong craft beer scene make it an easy overnight escape."
+      },
+      {
+        "name": "Nashville",
+        "state": "Tennessee",
+        "driveTime": "8 hours",
+        "description": "Nashville rewards the eight-hour drive with warm spring weather, rooftop bars on Broadway, and live music on every corner. A top pick for groups looking for a fun weekend away from Michigan cold."
+      },
+      {
+        "name": "Gatlinburg",
+        "state": "Tennessee",
+        "driveTime": "7.5 hours",
+        "description": "Gatlinburg and the Great Smoky Mountains come alive in spring with wildflowers and mild mountain air. The drive passes through rolling Kentucky hills scenic enough to feel like part of the trip."
+      },
+      {
+        "name": "Asheville",
+        "state": "North Carolina",
+        "driveTime": "8.5 hours",
+        "description": "Asheville delivers mountain charm, farm-to-table dining, and easy access to the Blue Ridge Parkway. Spring temperatures hover in the 60s and 70s—a welcome change after months of Detroit frost and freezing rain."
+      },
+      {
+        "name": "Charleston",
+        "state": "South Carolina",
+        "driveTime": "12 hours",
+        "description": "Charleston is the longest drive on this list but worth every mile. Warm coastal air, historic streets, and some of the best seafood in the South make it a standout spring road trip from Detroit."
+      }
+    ],
+    "weatherSection": "The drive south from Detroit takes you through Ohio, Kentucky, and into the mountains or coastal plains depending on your destination. Spring weather can shift from rain to sunshine in a single afternoon. WarmRoad's [route weather tool](/route-weather) shows real-time forecasts for every stretch of highway so you stay ahead of storms.",
+    "toolSection": "WarmRoad lets you search for warmer destinations based on how far you want to drive from Detroit. Set your starting city and maximum drive time to see where the weather is better. Visit our [road trip ideas](/road-trip-ideas) page for curated warm-weather drives from the Midwest.",
+    "seoTitle": "Detroit Warm Places to Drive | WarmRoad",
+    "seoDescription": "Discover warm destinations within driving distance of Detroit. Plan your road trip with real-time route weather from WarmRoad."
+  }
+]

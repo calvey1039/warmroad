@@ -430,6 +430,26 @@ export default function Home() {
                 d.weather?.forecast?.[0]
               );
               const matchingDays = d.weather ? getMatchingDaysCount(d.weather, currentFilter.min, currentFilter.max, weatherCondition) : 0;
+
+              const encodedDest = encodeURIComponent(`${d.name}, ${d.state}`);
+              const checkIn = warmestDay?.date || "";
+              const checkOut = warmestDay?.date ? (() => { const dt = new Date(warmestDay.date); dt.setDate(dt.getDate() + 2); return dt.toISOString().split("T")[0]; })() : "";
+
+              const lodgingUrlMap: Record<string, string> = {
+                expedia: `https://www.expedia.com/Hotel-Search?destination=${encodedDest}&startDate=${checkIn}&endDate=${checkOut}&rooms=1&adults=2`,
+                vrbo: `https://www.vrbo.com/search?destination=${encodedDest}&startDate=${checkIn}&endDate=${checkOut}&adults=2&affcid=ncpxw7r`,
+                booking: `https://www.awin1.com/cread.php?awinmid=6776&awinaffid=2785874&ued=${encodeURIComponent(`https://www.booking.com/searchresults.html?ss=${d.name}, ${d.state}&checkin=${checkIn}&checkout=${checkOut}`)}`,
+                hotels: `https://www.hotels.com/Hotel-Search?destination=${encodedDest}&startDate=${checkIn}&endDate=${checkOut}&rooms=1&adults=2&affcid=FpWwOIV`,
+              };
+              const flightsUrlMap: Record<string, string> = {
+                expedia_flights: `https://expedia.com/affiliate/6CA53pQ?destination=${encodedDest}`,
+                booking_flights: `https://www.awin1.com/cread.php?awinmid=6776&awinaffid=2785874&campaign=flights&ued=${encodeURIComponent("https://www.booking.com/flights/index.html")}`,
+              };
+              const carsUrlMap: Record<string, string> = {
+                expedia_cars: `https://expedia.com/affiliate/6XiIxgP?destination=${encodedDest}`,
+                booking_cars: `https://www.awin1.com/cread.php?awinmid=6776&awinaffid=2785874&campaign=CarRentals&ued=${encodeURIComponent("https://www.booking.com/cars/index.html")}`,
+              };
+
               return {
                 id: d.id,
                 name: d.name,
@@ -446,6 +466,10 @@ export default function Home() {
                 matchingDays,
                 description: d.description,
                 filterLabel: currentFilter.label,
+                routeWeatherUrl: `/route-weather/${d.id}?fromLat=${userLocation?.lat ?? ""}&fromLon=${userLocation?.lon ?? ""}`,
+                lodgingUrl: lodgingUrlMap[preferredLodgingSite] || lodgingUrlMap.expedia,
+                flightsUrl: flightsUrlMap[preferredFlightSite] || flightsUrlMap.expedia_flights,
+                carsUrl: carsUrlMap[preferredCarRentalSite] || carsUrlMap.expedia_cars,
               };
             })}
             selectedDestination={selectedDestination}
