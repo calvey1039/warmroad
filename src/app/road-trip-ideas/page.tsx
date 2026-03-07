@@ -2,10 +2,12 @@ import Link from "next/link";
 import { featuredTrips, cityTrips } from "@/lib/road-trip-data";
 import { getAllWarmPlacesCities } from "@/lib/warm-places-data";
 import { getAllMotorcycleTrips } from "@/lib/motorcycle-data";
+import { getAllWarmLandingPages } from "@/lib/warm-places-landing-data";
 
 export default function RoadTripIdeasPage() {
   const warmPlacesCities = getAllWarmPlacesCities();
   const motorcycleTrips = getAllMotorcycleTrips();
+  const warmLandingPages = getAllWarmLandingPages();
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-12">
@@ -129,6 +131,32 @@ export default function RoadTripIdeasPage() {
             </h3>
             <p className="text-xs text-zinc-500 mt-1">
               {city.destinations.length} destinations within driving distance
+            </p>
+          </Link>
+        ))}
+      </div>
+
+      <h2 className="text-2xl font-bold text-zinc-900 mb-2">
+        Warm Places to Drive by City
+      </h2>
+      <p className="text-zinc-600 text-sm leading-relaxed mb-6">
+        Find warm destinations within driving distance of major northern US
+        cities.
+      </p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+        {warmLandingPages.map((page) => (
+          <Link
+            key={page.slug}
+            href={`/${page.slug}`}
+            className="p-4 bg-zinc-50 rounded-lg hover:bg-zinc-100 transition-colors group"
+          >
+            <h3 className="font-semibold text-zinc-900 group-hover:text-orange-600 transition-colors">
+              Warm Places From {page.city}
+            </h3>
+            <p className="text-xs text-zinc-500 mt-1">
+              {page.destinations.length} warm destinations within driving
+              distance
             </p>
           </Link>
         ))}
