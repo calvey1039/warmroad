@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import type { WeatherData, WeatherCondition } from "@/lib/weather";
-import { getWeatherCategory } from "@/lib/weather";
+import { getWeatherCategory, hasGreatWeekend as computeGreatWeekend } from "@/lib/weather";
 import { formatDriveTime, calculateFuelCost, formatFuelCost } from "@/lib/distance";
 import { getLodgingEstimate } from "@/lib/lodging-estimates";
 
@@ -169,6 +169,8 @@ export default function DestinationCard({
 
   const matchingDaysCount = weather?.forecast?.filter(d => dayMeetsFilter(d.maxTemp, d.weatherCode)).length || 0;
 
+  const hasGreatWeekend = computeGreatWeekend(weather, tempFilter.min, tempFilter.max, weatherCondition);
+
   return (
     <Card
       className={`group relative cursor-pointer overflow-hidden transition-all duration-300 border-0 bg-zinc-50 dark:bg-zinc-900 hover:bg-white dark:hover:bg-zinc-800 hover:shadow-lg ${
@@ -221,11 +223,18 @@ export default function DestinationCard({
 
         <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-3">{description}</p>
 
-        {matchingDaysCount > 0 && (
-          <div className="flex items-center gap-2 mb-4">
-            <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-0 text-xs">
-              {matchingDaysCount} day{matchingDaysCount !== 1 ? "s" : ""} {tempFilter.label}
-            </Badge>
+        {(matchingDaysCount > 0 || hasGreatWeekend) && (
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            {matchingDaysCount > 0 && (
+              <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-0 text-xs">
+                {matchingDaysCount} day{matchingDaysCount !== 1 ? "s" : ""} {tempFilter.label}
+              </Badge>
+            )}
+            {hasGreatWeekend && (
+              <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-0 text-xs font-semibold">
+                ☀️ Great Weekend Ahead
+              </Badge>
+            )}
           </div>
         )}
 
@@ -266,14 +275,14 @@ export default function DestinationCard({
         )}
 
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="secondary" className="bg-zinc-100 text-zinc-600 hover:bg-zinc-100 font-normal text-xs px-2.5 py-1">
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="bg-zinc-100 text-zinc-600 hover:bg-zinc-100 font-normal text-[11px] px-2 py-1 whitespace-nowrap">
               {formatDriveTime(driveTime)} drive
             </Badge>
-            <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 font-normal text-xs px-2.5 py-1">
+            <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 font-normal text-[11px] px-2 py-1 whitespace-nowrap">
               {formatFuelCost(fuelCost)} fuel (round trip)
             </Badge>
-            <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-50 font-normal text-xs px-2.5 py-1">
+            <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-50 font-normal text-[11px] px-2 py-1 whitespace-nowrap">
               {lodgingEstimate}
             </Badge>
           </div>

@@ -8,6 +8,7 @@ import {
   getWeatherForLocation,
   meetsTemperatureCriteria,
   getMatchingDaysCount,
+  hasGreatWeekend,
   weatherConditionLabels,
   type WeatherData,
   type WeatherCondition,
@@ -216,6 +217,11 @@ export default function Home() {
           const bc = getMatchingDaysCount(b.weather, currentFilter.min, currentFilter.max, weatherCondition);
           return bc !== ac ? bc - ac : a.driveTime - b.driveTime;
         }
+        case "great_weekend": {
+          const aGW = hasGreatWeekend(a.weather, currentFilter.min, currentFilter.max, weatherCondition) ? 1 : 0;
+          const bGW = hasGreatWeekend(b.weather, currentFilter.min, currentFilter.max, weatherCondition) ? 1 : 0;
+          return bGW !== aGW ? bGW - aGW : a.driveTime - b.driveTime;
+        }
         case "temp_high": return (b.weather?.maxTemp ?? -Infinity) - (a.weather?.maxTemp ?? -Infinity);
         case "temp_low": return (a.weather?.maxTemp ?? Infinity) - (b.weather?.maxTemp ?? Infinity);
         case "distance": return a.distance - b.distance;
@@ -372,6 +378,7 @@ export default function Home() {
                 <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="text-xs bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-md px-2 py-1 cursor-pointer hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors appearance-auto">
                   <option value="drive_time">Drive Time</option>
                   <option value="best_match">Best Match (Most Days)</option>
+                  <option value="great_weekend">Great Weekend Ahead</option>
                   <option value="temp_high">Temp (Warmest)</option>
                   <option value="temp_low">Temp (Coolest)</option>
                   <option value="distance">Distance</option>

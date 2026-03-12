@@ -95,6 +95,35 @@ export function getMatchingDaysCount(
   }).length;
 }
 
+export function hasGreatWeekend(
+  weather: WeatherData | null,
+  minTemp: number | null,
+  maxTemp: number | null,
+  weatherCondition: WeatherCondition
+): boolean {
+  if (!weather?.forecast) return false;
+  const weekendGroups = new Map<string, number>();
+  for (const day of weather.forecast) {
+    const dateObj = new Date(day.date + "T12:00:00");
+    const dow = dateObj.getDay();
+    if (dow !== 0 && dow !== 5 && dow !== 6) continue;
+    const fridayDate = new Date(dateObj);
+    if (dow === 6) fridayDate.setDate(fridayDate.getDate() - 1);
+    else if (dow === 0) fridayDate.setDate(fridayDate.getDate() - 2);
+    const key = fridayDate.toISOString().split("T")[0];
+    const meetsMin = minTemp === null || day.maxTemp >= minTemp;
+    const meetsMax = maxTemp === null || day.maxTemp <= maxTemp;
+    const meetsWeather = weatherCondition === "any" || getWeatherCategory(day.weatherCode) === weatherCondition;
+    if (meetsMin && meetsMax && meetsWeather) {
+      weekendGroups.set(key, (weekendGroups.get(key) || 0) + 1);
+    }
+  }
+  for (const count of weekendGroups.values()) {
+    if (count >= 2) return true;
+  }
+  return false;
+}
+
 // Combined filter: check if destination meets temp and weather criteria
 export function meetsTemperatureCriteria(
   weather: WeatherData | null,
