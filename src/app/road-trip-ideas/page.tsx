@@ -23,6 +23,30 @@ export default function RoadTripIdeasPage() {
         Road to check current weather conditions and plan your drive.
       </p>
 
+      <section className="mb-10">
+        <h2 className="text-2xl font-bold text-zinc-900 mb-2">
+          Discover Road Trip Ideas Based on Weather
+        </h2>
+        <p className="text-zinc-600 text-sm leading-relaxed">
+          Looking for road trip ideas that match the weather you want? WarmRoad helps
+          travelers discover warm road trips by connecting destinations with real-time
+          forecasts and driving conditions. Whether you are planning a spring break
+          getaway, a long weekend escape, or a week-long adventure, our tools make it
+          easy to find warm destinations within driving distance of your home city.
+          Browse curated routes from cities across the Midwest, Northeast, and beyond,
+          and compare weather forecasts before you commit to a destination. WarmRoad
+          takes the guesswork out of weather based road trip planning by showing you
+          exactly what conditions to expect along your route. From sunny coastal highways
+          to desert drives, we help you plan spring break and weekend trips with
+          confidence. Check weather along your route using our{" "}
+          <Link href="/route-weather" className="text-orange-600 hover:text-orange-700 underline">
+            route weather tool
+          </Link>
+          , or start exploring the road trip ideas below to find your next warm-weather
+          drive.
+        </p>
+      </section>
+
       <div className="space-y-5 mb-12">
         {featuredTrips.map((trip) => (
           <div key={trip.name} className="p-5 bg-zinc-50 rounded-lg">
@@ -186,6 +210,143 @@ export default function RoadTripIdeasPage() {
           </Link>
         ))}
       </div>
+
+      <section className="mb-12">
+        <h2 className="text-2xl font-bold text-zinc-900 mb-2">
+          Find Road Trip Ideas From Popular Cities
+        </h2>
+        <p className="text-zinc-600 text-sm leading-relaxed mb-6">
+          Many travelers start road trip planning from their home city, searching for
+          warm destinations they can reach by car. Whether you live in the Midwest or
+          along the East Coast, these popular departure cities offer a great starting
+          point. Each guide features curated spring break routes, estimated drive times,
+          and weather-friendly destinations within a day or two of driving.
+        </p>
+        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {[
+            { city: "Chicago", slug: "chicago" },
+            { city: "Cleveland", slug: "cleveland" },
+            { city: "Detroit", slug: "detroit" },
+            { city: "New York", slug: "new-york" },
+            { city: "Philadelphia", slug: "philadelphia" },
+            { city: "Boston", slug: "boston" },
+          ].map((item) => (
+            <li key={item.slug}>
+              <a
+                href={`/spring-break-road-trips-from-${item.slug}`}
+                className="text-orange-600 hover:text-orange-700 underline text-sm"
+              >
+                Spring Break Road Trips from {item.city}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="mb-12">
+        <h2 className="text-2xl font-bold text-zinc-900 mb-2">
+          Seasonal Road Trip Ideas
+        </h2>
+        <p className="text-zinc-600 text-sm leading-relaxed mb-6">
+          The best road trips often depend on the season and weather. Spring brings mild
+          temperatures perfect for coastal drives, while summer opens up mountain passes
+          and northern routes. Fall delivers stunning foliage along scenic highways.
+          Explore our seasonal road trip guides to find destinations that offer the best
+          driving conditions for your travel window.
+        </p>
+        <ul className="space-y-2">
+          <li>
+            <a
+              href="/spring-break-road-trips"
+              className="text-orange-600 hover:text-orange-700 underline text-sm"
+            >
+              Spring Break Road Trips
+            </a>
+          </li>
+          <li>
+            <a
+              href="/memorial-day-road-trips"
+              className="text-orange-600 hover:text-orange-700 underline text-sm"
+            >
+              Memorial Day Road Trips
+            </a>
+          </li>
+          <li>
+            <a
+              href="/summer-road-trips"
+              className="text-orange-600 hover:text-orange-700 underline text-sm"
+            >
+              Summer Road Trips
+            </a>
+          </li>
+          <li>
+            <a
+              href="/fall-road-trips"
+              className="text-orange-600 hover:text-orange-700 underline text-sm"
+            >
+              Fall Road Trips
+            </a>
+          </li>
+        </ul>
+      </section>
+
+      <section className="mb-12">
+        <h2 className="text-2xl font-bold text-zinc-900 mb-2">
+          Specialty Road Trip Ideas
+        </h2>
+        <p className="text-zinc-600 text-sm leading-relaxed mb-6">
+          Some travelers search for specific types of drives rather than a particular
+          destination. Whether you prefer the open-air freedom of a motorcycle ride along
+          winding roads, scenic drives through national parks and coastal highways, or
+          mountain routes with dramatic elevation changes, these specialty collections
+          help you find the right kind of trip.
+        </p>
+        <ul className="space-y-2">
+          <li>
+            <Link
+              href="/motorcycle-road-trips"
+              className="text-orange-600 hover:text-orange-700 underline text-sm"
+            >
+              Motorcycle Road Trips
+            </Link>
+          </li>
+          <li>
+            <a
+              href="/scenic-drives"
+              className="text-orange-600 hover:text-orange-700 underline text-sm"
+            >
+              Scenic Drives
+            </a>
+          </li>
+          <li>
+            <a
+              href="/mountain-road-trips"
+              className="text-orange-600 hover:text-orange-700 underline text-sm"
+            >
+              Mountain Road Trips
+            </a>
+          </li>
+        </ul>
+      </section>
+
+      <section className="mb-12">
+        <h2 className="text-2xl font-bold text-zinc-900 mb-2">
+          Plan Your Trip With Weather
+        </h2>
+        <p className="text-zinc-600 text-sm leading-relaxed mb-6">
+          Before you hit the road, check the weather along your entire route. Knowing
+          what conditions to expect helps you pack the right gear, avoid storms, and
+          choose the best days to travel. WarmRoad&#39;s{" "}
+          <Link href="/route-weather" className="text-orange-600 hover:text-orange-700 underline">
+            route weather tool
+          </Link>{" "}
+          gives you a detailed forecast for every stop on your drive. Enter your starting
+          city and destination, and see temperature, precipitation, and wind conditions
+          mapped along your route. Whether you are driving south for spring break or
+          exploring scenic highways in the summer, checking the forecast ahead of time
+          helps you drive safe and enjoy the trip.
+        </p>
+      </section>
 
       <div className="text-center">
         <Link
