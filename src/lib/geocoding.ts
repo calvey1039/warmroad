@@ -198,21 +198,15 @@ export async function reverseGeocode(lat: number, lon: number): Promise<string> 
 
 export async function fetchGasPrice(): Promise<{ price: number; date: string; source: string }> {
   try {
-    const response = await fetch(
-      "https://api.eia.gov/v2/petroleum/pri/gnd/data/?api_key=DEMO_KEY&frequency=weekly&data[0]=value&facets[series][]=EMM_EPMR_PTE_NUS_DPG&sort[0][column]=period&sort[0][direction]=desc&length=1",
-      { next: { revalidate: 3600 } } as RequestInit
-    );
+    const response = await fetch("/api/gas-price");
     if (!response.ok) throw new Error("Failed to fetch gas price");
 
     const data = await response.json();
-    if (data.response?.data?.[0]?.value) {
-      return {
-        price: parseFloat(data.response.data[0].value),
-        date: data.response.data[0].period,
-        source: "EIA",
-      };
-    }
-    throw new Error("No data in response");
+    return {
+      price: data.price,
+      date: data.date,
+      source: data.source,
+    };
   } catch (error) {
     console.error("Gas price fetch error:", error);
     return { price: 2.93, date: new Date().toISOString().split("T")[0], source: "default" };

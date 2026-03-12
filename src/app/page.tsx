@@ -73,6 +73,7 @@ export default function Home() {
   const [mpg, setMpg] = useState(DEFAULT_MPG);
   const [gasPrice, setGasPrice] = useState(DEFAULT_GAS_PRICE);
   const [gasPriceSource, setGasPriceSource] = useState("default");
+  const [gasPriceDate, setGasPriceDate] = useState("");
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [sortBy, setSortBy] = useState("drive_time");
@@ -162,7 +163,7 @@ export default function Home() {
     } else { prompt("Copy this link:", url); }
   }, [favorites]);
 
-  useEffect(() => { fetchGasPrice().then(r => { setGasPrice(r.price); setGasPriceSource(r.source); }); }, []);
+  useEffect(() => { fetchGasPrice().then(r => { setGasPrice(r.price); setGasPriceSource(r.source); setGasPriceDate(r.date); }); }, []);
 
   useEffect(() => {
     if (!navigator.geolocation) { setLocationError("Geolocation is not supported"); setIsLoading(false); return; }
@@ -342,7 +343,7 @@ export default function Home() {
           <div className="mb-4">
             <label className="block text-xs text-zinc-500 dark:text-zinc-400 mb-1">Gas Price ($/gal):</label>
             <input type="number" min={1} max={10} step={0.01} value={gasPrice} onChange={e => setGasPrice(Number(e.target.value))} className="w-24 px-2 py-1 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100" />
-            <div className="text-xs text-zinc-400 mt-1">{gasPriceSource === "default" ? "Default value" : `Source: ${gasPriceSource}`}</div>
+            <div className="text-xs text-zinc-400 mt-1">{gasPriceSource === "default" ? "Default value — could not fetch current price" : `${gasPriceSource}${gasPriceDate ? ` (week of ${gasPriceDate})` : ""}`}</div>
           </div>
           <div className="mb-4">
             <label className="block text-xs text-zinc-500 dark:text-zinc-400 mb-1">Preferred Lodging Site:</label>
