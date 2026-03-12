@@ -141,7 +141,7 @@ export function meetsTemperatureCriteria(
   });
 }
 
-function getWeatherCondition(code: number): string {
+export function getWeatherCondition(code: number): string {
   const conditions: Record<number, string> = {
     0: "Clear sky",
     1: "Mainly clear",
@@ -189,6 +189,57 @@ function getWeatherIcon(code: number): string {
   return "🌡️";
 }
 
+// Severe weather alert detection for route forecasts
+export interface WeatherAlert {
+  label: string;
+  severity: "warning" | "caution"; // warning = severe, caution = moderate
+}
+
+export function getSevereWeatherAlerts(weatherCode: number, windSpeed: number, windGusts?: number): WeatherAlert[] {
+  const alerts: WeatherAlert[] = [];
+
+  // Thunderstorms (codes 95-99)
+  if (weatherCode >= 95) {
+    alerts.push({ label: "Thunderstorm", severity: "warning" });
+  }
+  if (weatherCode === 96 || weatherCode === 99) {
+    alerts.push({ label: "Hail", severity: "warning" });
+  }
+
+  // Freezing conditions (codes 56-57 freezing drizzle, 66-67 freezing rain)
+  if ((weatherCode >= 56 && weatherCode <= 57) || (weatherCode >= 66 && weatherCode <= 67)) {
+    alerts.push({ label: "Ice", severity: "warning" });
+  }
+
+  // Heavy snow (codes 75, 86)
+  if (weatherCode === 75 || weatherCode === 86) {
+    alerts.push({ label: "Heavy Snow", severity: "warning" });
+  } else if (weatherCode === 73 || weatherCode === 85 || weatherCode === 77) {
+    alerts.push({ label: "Snow", severity: "caution" });
+  } else if (weatherCode === 71) {
+    alerts.push({ label: "Light Snow", severity: "caution" });
+  }
+
+  // Heavy rain (codes 65, 82)
+  if (weatherCode === 65 || weatherCode === 82) {
+    alerts.push({ label: "Heavy Rain", severity: "warning" });
+  }
+
+  // Fog (codes 45, 48)
+  if (weatherCode === 45 || weatherCode === 48) {
+    alerts.push({ label: "Fog", severity: "caution" });
+  }
+
+  // High winds
+  if (windSpeed >= 35 || (windGusts && windGusts >= 50)) {
+    alerts.push({ label: "High Winds", severity: "warning" });
+  } else if (windSpeed >= 25 || (windGusts && windGusts >= 40)) {
+    alerts.push({ label: "Gusty Winds", severity: "caution" });
+  }
+
+  return alerts;
+}
+
 // Hourly weather for route forecasts
 export interface HourlyForecast {
   time: string; // ISO datetime string
@@ -197,6 +248,7 @@ export interface HourlyForecast {
   icon: string;
   condition: string;
   windSpeed: number;
+  windGusts?: number;
   humidity: number;
   precipitationProbability: number;
 }
@@ -207,7 +259,7 @@ export async function getHourlyWeatherForLocation(
   forecastDays: number = 16
 ): Promise<HourlyForecast[] | null> {
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weather_code,precipitation_probability,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=${forecastDays}`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weather_code,precipitation_probability,wind_speed_10m,wind_gusts_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=${forecastDays}`;
     const response = await fetch(url);
     if (!response.ok) return null;
     const data = await response.json();
@@ -219,6 +271,7 @@ export async function getHourlyWeatherForLocation(
       icon: getWeatherIcon(data.hourly.weather_code[i]),
       condition: getWeatherCondition(data.hourly.weather_code[i]),
       windSpeed: Math.round(data.hourly.wind_speed_10m[i]),
+      windGusts: data.hourly.wind_gusts_10m ? Math.round(data.hourly.wind_gusts_10m[i]) : undefined,
       humidity: 0,
       precipitationProbability: Math.round(data.hourly.precipitation_probability?.[i] ?? 0),
     }));
