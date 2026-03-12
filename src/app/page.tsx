@@ -276,7 +276,10 @@ export default function Home() {
               <button onClick={() => setShowSettings(p => !p)} className="px-2 py-1.5 text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors" aria-label="Settings">
                 <span className="hidden md:inline">{"\u2699\uFE0F"} Settings</span><span className="md:hidden">{"\u2699\uFE0F"}</span>
               </button>
-              <Link href="/route-weather" className="inline-flex items-center whitespace-nowrap px-3 py-1.5 text-xs font-medium bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-800/40 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 hover:text-orange-800 transition-colors">
+              <Link href="/route-weather" className="inline-flex items-center gap-1 whitespace-nowrap px-3 py-1.5 text-xs font-medium bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-800/40 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 hover:text-orange-800 transition-colors">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                </svg>
                 Route Weather
               </Link>
             </div>
