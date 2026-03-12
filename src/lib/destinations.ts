@@ -262,4 +262,43 @@ export const destinations: Destination[] = [
   { id: "traverse-city", name: "Traverse City", state: "MI", lat: 44.7631, lon: -85.6206, description: "Sleeping Bear Dunes and cherry capital", population: 15678 },
   { id: "knoxville", name: "Knoxville", state: "TN", lat: 35.9606, lon: -83.9207, description: "Gateway to the Great Smoky Mountains", population: 190740 },
   { id: "bend", name: "Bend", state: "OR", lat: 44.0582, lon: -121.3153, description: "Outdoor recreation and craft breweries", population: 102059 },
+
+  // State parks & popular camping destinations
+
+  // Ohio state parks
+  { id: "hocking-hills", name: "Hocking Hills", state: "OH", lat: 39.4400, lon: -82.5382, description: "Stunning gorges, waterfalls, and cave trails", population: 500 },
+  { id: "mohican", name: "Mohican", state: "OH", lat: 40.6092, lon: -82.3110, description: "Scenic gorge, canoeing, and forest trails", population: 400 },
+  { id: "salt-fork", name: "Salt Fork", state: "OH", lat: 40.1128, lon: -81.5151, description: "Ohio's largest state park with lake and camping", population: 300 },
+
+  // Appalachian & Eastern state parks
+  { id: "new-river-gorge", name: "New River Gorge", state: "WV", lat: 38.0659, lon: -81.0812, description: "America's newest national park with epic gorge views", population: 1200 },
+  { id: "watkins-glen", name: "Watkins Glen", state: "NY", lat: 42.3809, lon: -76.8691, description: "Breathtaking gorge with 19 waterfalls", population: 1859 },
+  { id: "ricketts-glen", name: "Ricketts Glen", state: "PA", lat: 41.3284, lon: -76.2780, description: "22 named waterfalls along hiking trails", population: 300 },
+  { id: "cumberland-falls", name: "Cumberland Falls", state: "KY", lat: 36.8372, lon: -84.3463, description: "Niagara of the South with rare moonbow", population: 400 },
+  { id: "mammoth-cave", name: "Mammoth Cave", state: "KY", lat: 37.1862, lon: -86.1005, description: "World's longest cave system and camping", population: 500 },
+  { id: "cape-henlopen", name: "Cape Henlopen", state: "DE", lat: 38.7867, lon: -75.0900, description: "Coastal camping with beach and nature trails", population: 400 },
+
+  // Southeast state parks
+  { id: "red-river-gorge", name: "Red River Gorge", state: "KY", lat: 37.7778, lon: -83.6743, description: "Dramatic rock arches and world-class climbing", population: 300 },
+  { id: "fall-creek-falls", name: "Fall Creek Falls", state: "TN", lat: 35.6628, lon: -85.3516, description: "Tallest waterfall in the eastern US", population: 300 },
+  { id: "gulf-state-park", name: "Gulf State Park", state: "AL", lat: 30.2627, lon: -87.6336, description: "Beach camping on the Gulf of Mexico", population: 400 },
+  { id: "topsail-hill", name: "Topsail Hill", state: "FL", lat: 30.3574, lon: -86.2689, description: "Pristine dune lake camping near the Emerald Coast", population: 300 },
+  { id: "cloudland-canyon", name: "Cloudland Canyon", state: "GA", lat: 34.8326, lon: -85.4816, description: "Deep gorge with waterfalls and canyon rim camping", population: 300 },
+  { id: "devil-s-fork", name: "Devils Fork", state: "SC", lat: 34.9517, lon: -82.9539, description: "Camping on pristine Lake Jocassee", population: 300 },
+
+  // Midwest state parks
+  { id: "starved-rock", name: "Starved Rock", state: "IL", lat: 41.3209, lon: -89.0042, description: "Canyons and waterfalls along the Illinois River", population: 400 },
+  { id: "turkey-run", name: "Turkey Run", state: "IN", lat: 39.8828, lon: -87.2128, description: "Sandstone ravines and covered bridge trails", population: 300 },
+  { id: "devils-lake", name: "Devil's Lake", state: "WI", lat: 43.4167, lon: -89.7318, description: "Bluff-top camping and rock climbing", population: 300 },
+  { id: "porcupine-mountains", name: "Porcupine Mountains", state: "MI", lat: 46.7579, lon: -89.7920, description: "Wilderness camping with Lake Superior views", population: 200 },
+  { id: "sleeping-bear-dunes", name: "Sleeping Bear Dunes", state: "MI", lat: 44.8697, lon: -86.0465, description: "Towering sand dunes on Lake Michigan", population: 300 },
+  { id: "brown-county", name: "Brown County", state: "IN", lat: 39.1814, lon: -86.2278, description: "Stunning fall foliage and rugged trails", population: 300 },
+
+  // Western state parks
+  { id: "custer-state-park", name: "Custer State Park", state: "SD", lat: 43.7569, lon: -103.4194, description: "Bison herds and Black Hills scenery", population: 400 },
+  { id: "big-bend-ranch", name: "Big Bend Ranch", state: "TX", lat: 29.4750, lon: -103.9800, description: "Remote desert camping along the Rio Grande", population: 200 },
+  { id: "enchanted-rock", name: "Enchanted Rock", state: "TX", lat: 30.5057, lon: -98.8189, description: "Iconic pink granite dome in Texas Hill Country", population: 300 },
+  { id: "garner-state-park", name: "Garner State Park", state: "TX", lat: 29.5941, lon: -99.7397, description: "Frio River swimming and Hill Country camping", population: 300 },
+  { id: "dead-horse-point", name: "Dead Horse Point", state: "UT", lat: 38.4823, lon: -109.7388, description: "Breathtaking canyon overlook near Moab", population: 200 },
+  { id: "cherry-springs", name: "Cherry Springs", state: "PA", lat: 41.6629, lon: -77.8222, description: "Best stargazing on the East Coast", population: 200 },
 ];
