@@ -13,6 +13,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import type { HourlyForecast } from "@/lib/weather";
+import { getWeatherCondition, getSevereWeatherAlerts } from "@/lib/weather";
 
 function BookingLinks({ destinationName, destinationState }: { destinationName: string; destinationState: string }) {
   const encodedDest = encodeURIComponent(`${destinationName}, ${destinationState}`);
@@ -126,7 +127,7 @@ async function fetchRouteWeatherData(
 
   for (const wp of waypoints) {
     try {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${wp.lat}&longitude=${wp.lon}&hourly=temperature_2m,weather_code,precipitation_probability,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&start_date=${selectedDate}&end_date=${selectedDate}`;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${wp.lat}&longitude=${wp.lon}&hourly=temperature_2m,weather_code,precipitation_probability,wind_speed_10m,wind_gusts_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&start_date=${selectedDate}&end_date=${selectedDate}`;
       const response = await fetch(url);
       if (!response.ok) {
         results.push({ waypoint: wp, arrivalTime: "", forecast: null });
@@ -168,8 +169,9 @@ async function fetchRouteWeatherData(
             temperature: Math.round(data.hourly.temperature_2m[targetIdx]),
             weatherCode: data.hourly.weather_code[targetIdx],
             icon: getIcon(data.hourly.weather_code[targetIdx]),
-            condition: "",
+            condition: getWeatherCondition(data.hourly.weather_code[targetIdx]),
             windSpeed: Math.round(data.hourly.wind_speed_10m[targetIdx]),
+            windGusts: data.hourly.wind_gusts_10m ? Math.round(data.hourly.wind_gusts_10m[targetIdx]) : undefined,
             humidity: 0,
             precipitationProbability: Math.round(data.hourly.precipitation_probability?.[targetIdx] ?? 0),
           };
@@ -350,6 +352,11 @@ export default function RouteWeatherTool({ destId }: RouteWeatherToolProps) {
               ? `${destination.name}, ${destination.state}`
               : cityNames[idx] || point.waypoint.label;
 
+            const alerts = point.forecast
+              ? getSevereWeatherAlerts(point.forecast.weatherCode, point.forecast.windSpeed, point.forecast.windGusts)
+              : [];
+            const hasWarning = alerts.some(a => a.severity === "warning");
+
             return (
               <div key={idx} className="flex gap-4 relative">
                 {/* Timeline line and dot */}
@@ -366,7 +373,13 @@ export default function RouteWeatherTool({ destId }: RouteWeatherToolProps) {
 
                 {/* Content card */}
                 <div className={`flex-1 pb-4 ${isEnd ? "" : "mb-1"}`}>
-                  <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-3 border border-zinc-100 dark:border-zinc-800">
+                  <div className={`bg-zinc-50 dark:bg-zinc-900 rounded-lg p-3 border ${
+                    hasWarning
+                      ? "border-red-300 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20"
+                      : alerts.length > 0
+                      ? "border-amber-300 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20"
+                      : "border-zinc-100 dark:border-zinc-800"
+                  }`}>
                     <div className="flex items-start justify-between gap-3 flex-wrap">
                       <div>
                         <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
@@ -393,15 +406,40 @@ export default function RouteWeatherTool({ destId }: RouteWeatherToolProps) {
                             <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                               {point.forecast.temperature}&deg;F
                             </p>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                              {point.forecast.condition}
+                            </p>
                           </div>
                         </div>
                       ) : (
                         <span className="text-xs text-zinc-400">No data</span>
                       )}
                     </div>
+                    {/* Severe weather alerts */}
+                    {alerts.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {alerts.map((alert, alertIdx) => (
+                          <span
+                            key={alertIdx}
+                            className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
+                              alert.severity === "warning"
+                                ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400"
+                                : "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400"
+                            }`}
+                          >
+                            {alert.severity === "warning" ? "\u26A0\uFE0F" : "\u26A0"} {alert.label}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     {point.forecast && (
                       <div className="flex gap-4 mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                        <span>{point.forecast.windSpeed} mph wind</span>
+                        <span className="inline-flex items-center gap-1">
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                          </svg>
+                          {point.forecast.windSpeed} mph wind{point.forecast.windGusts ? ` (gusts ${point.forecast.windGusts} mph)` : ""}
+                        </span>
                         <span>{point.forecast.precipitationProbability}% precip</span>
                       </div>
                     )}
