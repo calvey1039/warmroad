@@ -13,6 +13,7 @@ import {
 import type { WeatherData, WeatherCondition } from "@/lib/weather";
 import { getWeatherCategory } from "@/lib/weather";
 import { formatDriveTime, calculateFuelCost, formatFuelCost } from "@/lib/distance";
+import { getLodgingEstimate } from "@/lib/lodging-estimates";
 
 interface TempFilterConfig {
   min: number | null;
@@ -39,6 +40,7 @@ interface DestinationCardProps {
   preferredLodgingSite: string;
   preferredFlightSite: string;
   preferredCarRentalSite: string;
+  population?: number;
   userLat?: number;
   userLon?: number;
 }
@@ -62,6 +64,7 @@ export default function DestinationCard({
   preferredLodgingSite,
   preferredFlightSite,
   preferredCarRentalSite,
+  population,
   userLat,
   userLon,
 }: DestinationCardProps) {
@@ -83,16 +86,7 @@ export default function DestinationCard({
     return { checkIn: fmt(start), checkOut: fmt(end) };
   })();
 
-  const lodgingEstimate = (() => {
-    const n = name.toLowerCase();
-    if (n.includes("vegas") || n.includes("miami") || n.includes("san francisco"))
-      return { label: "$150-350/night" };
-    if (n.includes("austin") || n.includes("denver") || n.includes("san diego"))
-      return { label: "$120-280/night" };
-    if (n.includes("tucson") || n.includes("phoenix") || n.includes("albuquerque"))
-      return { label: "$90-200/night" };
-    return { label: "$80-180/night" };
-  })();
+  const lodgingEstimate = getLodgingEstimate(id, population);
 
   const encodedDest = encodeURIComponent(`${name}, ${state}`);
 
@@ -280,7 +274,7 @@ export default function DestinationCard({
               {formatFuelCost(fuelCost)} fuel (round trip)
             </Badge>
             <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-50 font-normal text-xs px-2.5 py-1">
-              {lodgingEstimate.label}
+              {lodgingEstimate}
             </Badge>
           </div>
 
