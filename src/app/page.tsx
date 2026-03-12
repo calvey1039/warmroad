@@ -400,6 +400,7 @@ export default function Home() {
                     mpg={mpg} gasPrice={gasPrice}
                     isFavorite={favorites.has(dest.id)} onToggleFavorite={() => toggleFavorite(dest.id)}
                     preferredLodgingSite={preferredLodgingSite} preferredFlightSite={preferredFlightSite} preferredCarRentalSite={preferredCarRentalSite}
+                    population={dest.population}
                     userLat={userLocation?.lat} userLon={userLocation?.lon}
                   />
                 ))
