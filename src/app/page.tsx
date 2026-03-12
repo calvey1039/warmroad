@@ -259,11 +259,7 @@ export default function Home() {
                 <p className="text-[10px] md:text-xs text-zinc-500 dark:text-zinc-400">Find your ideal weather within driving distance</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Link href="/route-weather" className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-orange-600 transition-colors">
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
-                <span className="hidden sm:inline">Route Weather</span>
-              </Link>
+            <div className="flex items-center gap-2 flex-wrap justify-end">
               <form onSubmit={handleSearchSubmit} className="hidden md:flex items-center gap-2">
                 <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="City, State or Zip" className="w-40 px-2 py-1.5 text-sm border border-zinc-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500" />
                 <button type="submit" disabled={!searchQuery.trim() || isGeocoding} className="px-3 py-1.5 text-sm font-medium bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">{isGeocoding ? "..." : "Go"}</button>
@@ -274,6 +270,9 @@ export default function Home() {
               <button onClick={() => setShowSettings(p => !p)} className="px-2 py-1.5 text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors" aria-label="Settings">
                 <span className="hidden md:inline">{"\u2699\uFE0F"} Settings</span><span className="md:hidden">{"\u2699\uFE0F"}</span>
               </button>
+              <Link href="/route-weather" className="inline-flex items-center whitespace-nowrap px-3 py-1.5 text-xs font-medium bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-800/40 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 hover:text-orange-800 transition-colors">
+                Route Weather
+              </Link>
             </div>
           </div>
 
