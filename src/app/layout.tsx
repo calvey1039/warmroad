@@ -19,7 +19,7 @@ const jost = Jost({
 });
 
 export const metadata: Metadata = {
-  title: "Warm Road - Escape to Warmth",
+  title: "Warm Road - Find Your Ideal Weather Within Driving Distance",
   description: "Find warm destinations within driving distance where the temperature is above 65\u00B0F",
 };
 
