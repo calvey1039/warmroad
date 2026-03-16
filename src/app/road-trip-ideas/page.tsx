@@ -187,6 +187,46 @@ export default function RoadTripIdeasPage() {
         ))}
       </div>
 
+      <h2 className="text-2xl font-bold text-zinc-900 mb-2">
+        Popular Starting Cities
+      </h2>
+      <p className="text-zinc-600 text-sm leading-relaxed mb-6">
+        Browse road trips from popular starting cities across the country.
+      </p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+        {[
+          { city: "Columbus", slug: "from-columbus-oh" },
+          { city: "Cleveland", slug: "from-cleveland-oh" },
+          { city: "Cincinnati", slug: "from-cincinnati-oh" },
+          { city: "Chicago", slug: "from-chicago-il" },
+          { city: "Detroit", slug: "from-detroit-mi" },
+          { city: "Pittsburgh", slug: "from-pittsburgh-pa" },
+          { city: "Indianapolis", slug: "from-indianapolis-in" },
+          { city: "Nashville", slug: "from-nashville-tn" },
+          { city: "Louisville", slug: "from-louisville-ky" },
+          { city: "Charlotte", slug: "from-charlotte-nc" },
+          { city: "Atlanta", slug: "from-atlanta-ga" },
+          { city: "Philadelphia", slug: "from-philadelphia-pa" },
+          { city: "New York", slug: "from-new-york-ny" },
+          { city: "Boston", slug: "from-boston-ma" },
+          { city: "Washington", slug: "from-washington-dc" },
+        ].map((item) => (
+          <Link
+            key={item.slug}
+            href={`/${item.slug}`}
+            className="p-4 bg-zinc-50 rounded-lg hover:bg-zinc-100 transition-colors group"
+          >
+            <h3 className="font-semibold text-zinc-900 group-hover:text-orange-600 transition-colors">
+              Road Trips From {item.city}
+            </h3>
+            <p className="text-xs text-zinc-500 mt-1">
+              Find destinations with ideal weather
+            </p>
+          </Link>
+        ))}
+      </div>
+
       <div className="text-center">
         <Link
           href="/"
