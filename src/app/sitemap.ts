@@ -4,6 +4,7 @@ import { getAllCitySlugs } from "@/lib/road-trip-data";
 import { getAllWarmPlacesSlugs } from "@/lib/warm-places-data";
 import { getAllMotorcycleSlugs } from "@/lib/motorcycle-data";
 import { getAllWarmLandingSlugs } from "@/lib/warm-places-landing-data";
+import { getAllCityOriginSlugs } from "@/lib/city-origin-data";
 
 const BASE_URL = "https://warmroad.com";
 
@@ -83,6 +84,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
+  // City origin pages (from-[city]-[state])
+  const cityOriginPages: MetadataRoute.Sitemap = getAllCityOriginSlugs().map((slug) => ({
+    url: `${BASE_URL}/${slug}`,
+    lastModified: today,
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
+
   return [
     ...staticPages,
     ...roadTripPages,
@@ -91,5 +100,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...warmLandingPages,
     ...motorcyclePages,
     ...springBreakPages,
+    ...cityOriginPages,
   ];
 }
