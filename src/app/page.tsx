@@ -7,6 +7,7 @@ import { destinations, type Destination } from "@/lib/destinations";
 import {
   getWeatherForLocation,
   meetsTemperatureCriteria,
+  meetsUpcomingWeekendCriteria,
   getMatchingDaysCount,
   hasGreatWeekend,
   weatherConditionLabels,
@@ -76,6 +77,7 @@ export default function Home() {
   const [gasPriceDate, setGasPriceDate] = useState("");
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [showWeekendOnly, setShowWeekendOnly] = useState(false);
   const [sortBy, setSortBy] = useState("drive_time");
   const [mobileView, setMobileView] = useState<"list" | "map">("list");
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -207,6 +209,7 @@ export default function Home() {
       meetsTemperatureCriteria(d.weather, currentFilter.min, currentFilter.max, weatherCondition)
     );
     if (showFavoritesOnly) filtered = filtered.filter(d => favorites.has(d.id));
+    if (showWeekendOnly) filtered = filtered.filter(d => meetsUpcomingWeekendCriteria(d.weather, currentFilter.min, currentFilter.max, weatherCondition));
 
     filtered.sort((a, b) => {
       const aFav = favorites.has(a.id), bFav = favorites.has(b.id);
@@ -231,7 +234,7 @@ export default function Home() {
       }
     });
     return filtered;
-  }, [destinationsWithWeather, currentFilter, weatherCondition, showFavoritesOnly, favorites, sortBy]);
+  }, [destinationsWithWeather, currentFilter, weatherCondition, showFavoritesOnly, showWeekendOnly, favorites, sortBy]);
 
   useEffect(() => {
     if (destinationsWithDistance.length === 0) return;
@@ -377,7 +380,12 @@ export default function Home() {
           {!isLoading && filteredDestinations.length > 0 && (
             <div className="shrink-0 flex items-center justify-between px-3 md:px-4 py-2 border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
               <span className="text-[10px] md:text-xs text-zinc-400 dark:text-zinc-500">{filteredDestinations.length} result{filteredDestinations.length !== 1 ? "s" : ""}</span>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowWeekendOnly(p => !p)} className={`flex items-center gap-1 px-2.5 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all ${showWeekendOnly ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  This Weekend
+                </button>
+                <div className="flex items-center gap-1">
                 <svg className="w-3 h-3 text-zinc-400 dark:text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" /></svg>
                 <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="text-xs bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-md px-2 py-1 cursor-pointer hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors appearance-auto">
                   <option value="drive_time">Drive Time</option>
@@ -388,6 +396,7 @@ export default function Home() {
                   <option value="distance">Distance</option>
                   <option value="name">Name (A-Z)</option>
                 </select>
+                </div>
               </div>
             </div>
           )}
@@ -397,9 +406,9 @@ export default function Home() {
                 Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-28 md:h-32 w-full rounded-lg" />)
               ) : filteredDestinations.length === 0 && !loadingWeather ? (
                 <div className="text-center py-8 md:py-12 px-4 md:px-6">
-                  <div className="text-3xl md:text-4xl mb-3 md:mb-4">{showFavoritesOnly ? "\u2764\uFE0F" : "\uD83C\uDF21\uFE0F"}</div>
-                  <h3 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2 text-sm md:text-base">{showFavoritesOnly ? "No favorites yet" : "No matching destinations found"}</h3>
-                  <p className="text-xs md:text-sm text-zinc-500 leading-relaxed">{showFavoritesOnly ? "Click the heart icon on destinations to add them to your favorites." : `No destinations within ${maxDriveHours} hours match your filters. Try adjusting temperature or weather.`}</p>
+                  <div className="text-3xl md:text-4xl mb-3 md:mb-4">{showFavoritesOnly ? "\u2764\uFE0F" : showWeekendOnly ? "\uD83D\uDCC5" : "\uD83C\uDF21\uFE0F"}</div>
+                  <h3 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2 text-sm md:text-base">{showFavoritesOnly ? "No favorites yet" : showWeekendOnly ? "No weekend matches" : "No matching destinations found"}</h3>
+                  <p className="text-xs md:text-sm text-zinc-500 leading-relaxed">{showFavoritesOnly ? "Click the heart icon on destinations to add them to your favorites." : showWeekendOnly ? "No destinations within " + maxDriveHours + " hours match your filters for this weekend. Try adjusting temperature or weather." : `No destinations within ${maxDriveHours} hours match your filters. Try adjusting temperature or weather.`}</p>
                 </div>
               ) : (
                 filteredDestinations.map(dest => (

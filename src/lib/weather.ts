@@ -124,6 +124,42 @@ export function hasGreatWeekend(
   return false;
 }
 
+export function getUpcomingWeekendDates(): string[] {
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
+  const dow = today.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+
+  // Find the next upcoming Saturday.
+  // If today is Saturday (6), use today. Otherwise advance to next Saturday.
+  // Sun=6d, Mon=5d, Tue=4d, Wed=3d, Thu=2d, Fri=1d, Sat=0d
+  const daysUntilSaturday = (6 - dow) % 7;
+  const saturday = new Date(today);
+  saturday.setDate(today.getDate() + daysUntilSaturday);
+
+  const sunday = new Date(saturday);
+  sunday.setDate(saturday.getDate() + 1);
+
+  const fmt = (d: Date) => d.toISOString().split("T")[0];
+  return [fmt(saturday), fmt(sunday)];
+}
+
+export function meetsUpcomingWeekendCriteria(
+  weather: WeatherData | null,
+  minTemp: number | null,
+  maxTemp: number | null,
+  weatherCondition: WeatherCondition = "any"
+): boolean {
+  if (!weather?.forecast) return false;
+  const weekendDates = getUpcomingWeekendDates();
+  return weather.forecast.some(day => {
+    if (!weekendDates.includes(day.date)) return false;
+    const meetsMin = minTemp === null || day.maxTemp >= minTemp;
+    const meetsMax = maxTemp === null || day.maxTemp <= maxTemp;
+    const meetsWeather = weatherCondition === "any" || getWeatherCategory(day.weatherCode) === weatherCondition;
+    return meetsMin && meetsMax && meetsWeather;
+  });
+}
+
 // Combined filter: check if destination meets temp and weather criteria
 export function meetsTemperatureCriteria(
   weather: WeatherData | null,
