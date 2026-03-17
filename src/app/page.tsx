@@ -244,12 +244,15 @@ export default function Home() {
     (async () => {
       setLoadingWeather(true);
       const data: Record<string, WeatherData | null> = {};
-      for (let i = 0; i < destinationsWithDistance.length; i += 5) {
+      const batchSize = 10;
+      for (let i = 0; i < destinationsWithDistance.length; i += batchSize) {
         if (weatherFetchRef.current !== fetchId) return;
-        const batch = destinationsWithDistance.slice(i, i + 5);
+        const batch = destinationsWithDistance.slice(i, i + batchSize);
         const results = await Promise.all(batch.map(d => getWeatherForLocation(d.lat, d.lon)));
         batch.forEach((d, idx) => { data[d.id] = results[idx]; });
-        if (i + 5 < destinationsWithDistance.length) await new Promise(r => setTimeout(r, 200));
+        // Update UI progressively so users see results sooner
+        if (weatherFetchRef.current === fetchId) { setWeatherData(prev => ({ ...prev, ...data })); }
+        if (i + batchSize < destinationsWithDistance.length) await new Promise(r => setTimeout(r, 50));
       }
       if (weatherFetchRef.current === fetchId) { setWeatherData(data); setLoadingWeather(false); }
     })();

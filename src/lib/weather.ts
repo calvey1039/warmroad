@@ -1,5 +1,9 @@
 // Open-Meteo Weather API integration
 
+// Simple in-memory cache to avoid redundant API calls within a session
+const weatherCache = new Map<string, { data: WeatherData; timestamp: number }>();
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
 export interface DayForecast {
   date: string;
   dayName: string;
@@ -41,6 +45,13 @@ export function getWeatherCategory(code: number): WeatherCondition {
 
 export async function getWeatherForLocation(lat: number, lon: number): Promise<WeatherData | null> {
   try {
+    // Check cache first
+    const cacheKey = `${lat.toFixed(2)},${lon.toFixed(2)}`;
+    const cached = weatherCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data;
+    }
+
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weather_code&temperature_unit=fahrenheit&timezone=auto&forecast_days=10`;
 
     const response = await fetch(url);
@@ -67,13 +78,18 @@ export async function getWeatherForLocation(lat: number, lon: number): Promise<W
       };
     });
 
-    return {
+    const result: WeatherData = {
       maxTemp: Math.round(maxTemp),
       minTemp: Math.round(minTemp),
       condition: getWeatherCondition(weatherCode),
       icon: getWeatherIcon(weatherCode),
       forecast,
     };
+
+    // Store in cache
+    weatherCache.set(cacheKey, { data: result, timestamp: Date.now() });
+
+    return result;
   } catch (error) {
     console.error("Weather fetch error:", error);
     return null;
