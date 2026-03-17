@@ -160,6 +160,24 @@ export function meetsUpcomingWeekendCriteria(
   });
 }
 
+export function meetsTodayCriteria(
+  weather: WeatherData | null,
+  minTemp: number | null,
+  maxTemp: number | null,
+  weatherCondition: WeatherCondition = "any"
+): boolean {
+  if (!weather?.forecast || weather.forecast.length === 0) return false;
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
+  const todayStr = today.toISOString().split("T")[0];
+  const todayForecast = weather.forecast.find(day => day.date === todayStr);
+  if (!todayForecast) return false;
+  const meetsMin = minTemp === null || todayForecast.maxTemp >= minTemp;
+  const meetsMax = maxTemp === null || todayForecast.maxTemp <= maxTemp;
+  const meetsWeather = weatherCondition === "any" || getWeatherCategory(todayForecast.weatherCode) === weatherCondition;
+  return meetsMin && meetsMax && meetsWeather;
+}
+
 // Combined filter: check if destination meets temp and weather criteria
 export function meetsTemperatureCriteria(
   weather: WeatherData | null,
