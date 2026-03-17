@@ -8,6 +8,7 @@ import {
   getWeatherForLocation,
   meetsTemperatureCriteria,
   meetsUpcomingWeekendCriteria,
+  meetsTodayCriteria,
   getMatchingDaysCount,
   hasGreatWeekend,
   weatherConditionLabels,
@@ -77,7 +78,7 @@ export default function Home() {
   const [gasPriceDate, setGasPriceDate] = useState("");
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
-  const [showWeekendOnly, setShowWeekendOnly] = useState(false);
+  const [timeFilter, setTimeFilter] = useState<"next_10_days" | "this_weekend" | "today">("next_10_days");
   const [sortBy, setSortBy] = useState("drive_time");
   const [mobileView, setMobileView] = useState<"list" | "map">("list");
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -209,7 +210,8 @@ export default function Home() {
       meetsTemperatureCriteria(d.weather, currentFilter.min, currentFilter.max, weatherCondition)
     );
     if (showFavoritesOnly) filtered = filtered.filter(d => favorites.has(d.id));
-    if (showWeekendOnly) filtered = filtered.filter(d => meetsUpcomingWeekendCriteria(d.weather, currentFilter.min, currentFilter.max, weatherCondition));
+    if (timeFilter === "this_weekend") filtered = filtered.filter(d => meetsUpcomingWeekendCriteria(d.weather, currentFilter.min, currentFilter.max, weatherCondition));
+    if (timeFilter === "today") filtered = filtered.filter(d => meetsTodayCriteria(d.weather, currentFilter.min, currentFilter.max, weatherCondition));
 
     filtered.sort((a, b) => {
       const aFav = favorites.has(a.id), bFav = favorites.has(b.id);
@@ -234,7 +236,7 @@ export default function Home() {
       }
     });
     return filtered;
-  }, [destinationsWithWeather, currentFilter, weatherCondition, showFavoritesOnly, showWeekendOnly, favorites, sortBy]);
+  }, [destinationsWithWeather, currentFilter, weatherCondition, showFavoritesOnly, timeFilter, favorites, sortBy]);
 
   useEffect(() => {
     if (destinationsWithDistance.length === 0) return;
@@ -308,18 +310,26 @@ export default function Home() {
               ))}
             </div>
 
-            <button onClick={() => setShowFavoritesOnly(p => !p)} className={`flex items-center gap-1 px-2.5 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all ${showFavoritesOnly ? "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>
-              <svg className="w-3 h-3" fill={showFavoritesOnly ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-              <span className="hidden sm:inline">Favorites{favorites.size > 0 ? ` (${favorites.size})` : ""}</span>
-              <span className="sm:hidden">{favorites.size > 0 ? String(favorites.size) : ""}</span>
-            </button>
+            <div className="flex items-center gap-0.5 bg-zinc-100 dark:bg-zinc-800 rounded-full px-3 py-0.5">
+              <span className="text-[10px] md:text-xs text-zinc-500 dark:text-zinc-400 mr-1">When:</span>
+              <button onClick={() => setTimeFilter("next_10_days")} className={`px-2 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all whitespace-nowrap ${timeFilter === "next_10_days" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>Next 10 Days</button>
+              <button onClick={() => setTimeFilter("this_weekend")} className={`px-2 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all whitespace-nowrap ${timeFilter === "this_weekend" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>This Weekend</button>
+              <button onClick={() => setTimeFilter("today")} className={`px-2 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all whitespace-nowrap ${timeFilter === "today" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>Today</button>
+            </div>
 
-            {favorites.size > 0 && (
-              <button onClick={shareFavorites} className="flex items-center gap-1 px-2.5 py-1 text-[10px] md:text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-full transition-all" title="Share favorites">
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
-                <span className="hidden sm:inline">Share</span>
+            <div className="flex items-center gap-1">
+              <button onClick={() => setShowFavoritesOnly(p => !p)} className={`flex items-center gap-1 px-2.5 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all ${showFavoritesOnly ? "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>
+                <svg className="w-3 h-3" fill={showFavoritesOnly ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                <span className="hidden sm:inline">Favorites{favorites.size > 0 ? ` (${favorites.size})` : ""}</span>
+                <span className="sm:hidden">{favorites.size > 0 ? String(favorites.size) : ""}</span>
               </button>
-            )}
+              {favorites.size > 0 && (
+                <button onClick={shareFavorites} className="flex items-center gap-1 px-2.5 py-1 text-[10px] md:text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-full transition-all" title="Share favorites">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                  <span className="hidden sm:inline">Share</span>
+                </button>
+              )}
+            </div>
 
             {locationName && <div className="text-[10px] md:text-xs text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full hidden sm:block">From: {locationName}</div>}
             {locationError && <div className="text-[10px] md:text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full">{locationError}</div>}
@@ -381,10 +391,6 @@ export default function Home() {
             <div className="shrink-0 flex items-center justify-between px-3 md:px-4 py-2 border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
               <span className="text-[10px] md:text-xs text-zinc-400 dark:text-zinc-500">{filteredDestinations.length} result{filteredDestinations.length !== 1 ? "s" : ""}</span>
               <div className="flex items-center gap-2">
-                <button onClick={() => setShowWeekendOnly(p => !p)} className={`flex items-center gap-1 px-2.5 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all ${showWeekendOnly ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                  This Weekend
-                </button>
                 <div className="flex items-center gap-1">
                 <svg className="w-3 h-3 text-zinc-400 dark:text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" /></svg>
                 <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="text-xs bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-md px-2 py-1 cursor-pointer hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors appearance-auto">
@@ -406,9 +412,9 @@ export default function Home() {
                 Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-28 md:h-32 w-full rounded-lg" />)
               ) : filteredDestinations.length === 0 && !loadingWeather ? (
                 <div className="text-center py-8 md:py-12 px-4 md:px-6">
-                  <div className="text-3xl md:text-4xl mb-3 md:mb-4">{showFavoritesOnly ? "\u2764\uFE0F" : showWeekendOnly ? "\uD83D\uDCC5" : "\uD83C\uDF21\uFE0F"}</div>
-                  <h3 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2 text-sm md:text-base">{showFavoritesOnly ? "No favorites yet" : showWeekendOnly ? "No weekend matches" : "No matching destinations found"}</h3>
-                  <p className="text-xs md:text-sm text-zinc-500 leading-relaxed">{showFavoritesOnly ? "Click the heart icon on destinations to add them to your favorites." : showWeekendOnly ? "No destinations within " + maxDriveHours + " hours match your filters for this weekend. Try adjusting temperature or weather." : `No destinations within ${maxDriveHours} hours match your filters. Try adjusting temperature or weather.`}</p>
+                  <div className="text-3xl md:text-4xl mb-3 md:mb-4">{showFavoritesOnly ? "\u2764\uFE0F" : timeFilter !== "next_10_days" ? "\uD83D\uDCC5" : "\uD83C\uDF21\uFE0F"}</div>
+                  <h3 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2 text-sm md:text-base">{showFavoritesOnly ? "No favorites yet" : timeFilter === "this_weekend" ? "No weekend matches" : timeFilter === "today" ? "No matches today" : "No matching destinations found"}</h3>
+                  <p className="text-xs md:text-sm text-zinc-500 leading-relaxed">{showFavoritesOnly ? "Click the heart icon on destinations to add them to your favorites." : timeFilter === "this_weekend" ? "No destinations within " + maxDriveHours + " hours match your filters for this weekend. Try adjusting temperature or weather." : timeFilter === "today" ? "No destinations within " + maxDriveHours + " hours match your filters for today. Try adjusting temperature or weather." : `No destinations within ${maxDriveHours} hours match your filters. Try adjusting temperature or weather.`}</p>
                 </div>
               ) : (
                 filteredDestinations.map(dest => (
