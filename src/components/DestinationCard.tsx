@@ -43,6 +43,7 @@ interface DestinationCardProps {
   population?: number;
   userLat?: number;
   userLon?: number;
+  originCity?: string;
 }
 
 export default function DestinationCard({
@@ -67,8 +68,10 @@ export default function DestinationCard({
   population,
   userLat,
   userLon,
+  originCity,
 }: DestinationCardProps) {
   const [showForecast, setShowForecast] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const fuelCost = calculateFuelCost(distance, gasPrice, mpg);
 
@@ -171,6 +174,51 @@ export default function DestinationCard({
 
   const hasGreatWeekend = computeGreatWeekend(weather, tempFilter.min, tempFilter.max, weatherCondition);
 
+  const getConditionText = (code: number): string => {
+    if (code === 0) return "sunny";
+    if (code >= 1 && code <= 2) return "partly-cloudy";
+    if (code === 3) return "cloudy";
+    if (code >= 45 && code <= 48) return "foggy";
+    if ((code >= 51 && code <= 57) || (code >= 61 && code <= 67)) return "rainy";
+    if (code >= 71 && code <= 77) return "snowy";
+    if (code >= 80 && code <= 82) return "showers";
+    if (code >= 95) return "stormy";
+    return "clear";
+  };
+
+  const toSlug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const params = new URLSearchParams();
+    if (originCity) params.set("from", toSlug(originCity));
+    params.set("to", toSlug(`${name} ${state}`));
+    if (warmestDay) {
+      params.set("temp", String(warmestDay.maxTemp));
+      params.set("condition", getConditionText(warmestDay.weatherCode));
+    }
+    if (driveTime) params.set("drive", formatDriveTime(driveTime));
+
+    const shareUrl = `${window.location.origin}/route-weather?${params.toString()}`;
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: `Trip to ${name}, ${state}`, url: shareUrl });
+        return;
+      } catch {
+        // User cancelled or share failed, fall through to clipboard
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard not available
+    }
+  };
+
   return (
     <Card
       className={`group relative cursor-pointer overflow-hidden transition-all duration-300 border-0 bg-zinc-50 dark:bg-zinc-900 hover:bg-white dark:hover:bg-zinc-800 hover:shadow-lg ${
@@ -217,6 +265,15 @@ export default function DestinationCard({
                 </svg>
                 Route Weather
               </Link>
+              <button
+                onClick={handleShare}
+                className="inline-flex items-center gap-1 text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-orange-600 transition-colors mt-1"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                {copied ? "Copied!" : "Share Trip"}
+              </button>
             </div>
           )}
         </div>
@@ -371,6 +428,7 @@ export default function DestinationCard({
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+
           </div>
         </div>
       </div>

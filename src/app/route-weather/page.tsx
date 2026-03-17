@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import { getHourlyWeatherForLocation, type HourlyForecast } from "@/lib/weather";
+import { getHourlyWeatherForLocation, getWeatherForLocation, type HourlyForecast, type DayForecast } from "@/lib/weather";
 import { calculateDistance, formatDriveTime, estimateDriveTime, getRouteWaypoints, type RouteWaypoint } from "@/lib/distance";
 import { geocodeLocation, reverseGeocode } from "@/lib/geocoding";
 import {
@@ -107,6 +107,84 @@ function BookingLinks({ destination }: { destination: string }) {
   );
 }
 
+function formatCityFromSlug(slug: string): string {
+  const parts = slug.split("-");
+  const lastPart = parts[parts.length - 1];
+  if (lastPart.length <= 2 && parts.length > 1) {
+    const city = parts.slice(0, -1).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(" ");
+    return `${city}, ${lastPart.toUpperCase()}`;
+  }
+  return parts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(" ");
+}
+
+function SharedTripSummary({ fromCity, toCity, drive, temp, condition }: {
+  fromCity: string | null;
+  toCity: string;
+  drive: string | null;
+  temp: string | null;
+  condition: string | null;
+}) {
+  return (
+    <div className="mb-8 pb-6 border-b border-zinc-200 dark:border-zinc-700">
+      <h1 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">
+        {fromCity ? `Trip from ${fromCity} to ${toCity}` : `Trip to ${toCity}`}
+      </h1>
+      <p className="text-sm md:text-base text-zinc-500 dark:text-zinc-400">
+        {[drive ? `${drive} drive` : null, temp ? `${temp}\u00B0` : null, condition ? condition.replace(/-/g, " ") : null]
+          .filter(Boolean)
+          .join(" \u2022 ")}
+      </p>
+      <p className="text-sm text-orange-600 dark:text-orange-400 mt-3 font-medium">
+        Pick your departure date and time below to check route weather!
+      </p>
+      <Link
+        href="/"
+        className="inline-flex items-center gap-2 mt-3 px-4 py-2 text-sm font-medium bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+      >
+        Find Your Own Trip
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </Link>
+    </div>
+  );
+}
+
+function DestinationForecast({ forecast, onSelectDate, selectedDate }: {
+  forecast: DayForecast[];
+  onSelectDate: (dateValue: string) => void;
+  selectedDate: string;
+}) {
+  return (
+    <div className="mb-6 p-4 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-zinc-900 dark:to-zinc-800 rounded-xl border border-orange-100 dark:border-zinc-700">
+      <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">
+        10-Day Destination Forecast &mdash; pick the best day to depart!
+      </h3>
+      <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
+        {forecast.map((day) => {
+          const isSelected = day.date === selectedDate;
+          return (
+            <button
+              key={day.date}
+              onClick={() => onSelectDate(day.date)}
+              className={`flex flex-col items-center gap-0.5 p-2 rounded-lg transition-all text-center cursor-pointer ${
+                isSelected
+                  ? "bg-orange-500 text-white ring-2 ring-orange-400 shadow-md"
+                  : "bg-white/70 dark:bg-zinc-800/70 hover:bg-orange-100 dark:hover:bg-zinc-700 hover:ring-2 hover:ring-orange-400"
+              }`}
+            >
+              <span className={`text-[10px] font-medium ${isSelected ? "text-orange-100" : "text-zinc-500 dark:text-zinc-400"}`}>{day.dayName}</span>
+              <span className="text-lg leading-none">{day.icon}</span>
+              <span className={`text-xs font-bold ${isSelected ? "text-white" : "text-zinc-800 dark:text-zinc-200"}`}>{day.maxTemp}&deg;</span>
+              <span className={`text-[10px] ${isSelected ? "text-orange-200" : "text-zinc-400 dark:text-zinc-500"}`}>{day.minTemp}&deg;</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // Weather data matched to a route waypoint at a specific time
 interface RouteWeatherPoint {
   waypoint: RouteWaypoint;
@@ -197,6 +275,18 @@ export default function RouteWeatherCustomPage() {
   const [loading, setLoading] = useState(false);
   const [cityNames, setCityNames] = useState<Record<number, string>>({});
 
+  // Shared link state
+  const [shareParams, setShareParams] = useState<{
+    from: string | null;
+    to: string | null;
+    temp: string | null;
+    condition: string | null;
+    drive: string | null;
+  } | null>(null);
+  const [destinationForecast, setDestinationForecast] = useState<DayForecast[] | null>(null);
+  const [loadingForecast, setLoadingForecast] = useState(false);
+  const [sharedLinkProcessed, setSharedLinkProcessed] = useState(false);
+
   const hasRoute = fromCoords && toCoords;
 
   const dist = hasRoute ? calculateDistance(fromCoords.lat, fromCoords.lon, toCoords.lat, toCoords.lon) : 0;
@@ -220,6 +310,70 @@ export default function RouteWeatherCustomPage() {
       setSelectedDate(travelDates[0].value);
     }
   }, [travelDates, selectedDate]);
+
+  // Auto-fill from shared link query params
+  useEffect(() => {
+    if (sharedLinkProcessed) return;
+    const params = new URLSearchParams(window.location.search);
+    const from = params.get("from");
+    const to = params.get("to");
+    const temp = params.get("temp");
+    const condition = params.get("condition");
+    const drive = params.get("drive");
+
+    if (!to) return;
+
+    setSharedLinkProcessed(true);
+
+    const fromCity = from ? formatCityFromSlug(from) : null;
+    const toCity = formatCityFromSlug(to);
+
+    setShareParams({ from, to, temp, condition, drive });
+
+    // Pre-fill the input fields
+    if (fromCity) setFromQuery(fromCity);
+    setToQuery(toCity);
+
+    // Auto-geocode both locations
+    const autoGeocode = async () => {
+      setIsGeocodingFrom(true);
+      setIsGeocodingTo(true);
+      setGeocodeError(null);
+
+      const [fromResult, toResult] = await Promise.all([
+        fromCity ? geocodeLocation(fromCity) : Promise.resolve(null),
+        geocodeLocation(toCity),
+      ]);
+
+      setIsGeocodingFrom(false);
+      setIsGeocodingTo(false);
+
+      if (!toResult) {
+        setGeocodeError("Could not find the destination. Please check and try again.");
+        return;
+      }
+      if (fromCity && !fromResult) {
+        setGeocodeError("Could not find the starting location. Please check and try again.");
+      }
+
+      if (fromResult) {
+        setFromCoords({ lat: fromResult.lat, lon: fromResult.lon });
+        setFromName(`${fromResult.name}${fromResult.state ? `, ${fromResult.state}` : ""}`);
+      }
+      setToCoords({ lat: toResult.lat, lon: toResult.lon });
+      setToName(`${toResult.name}${toResult.state ? `, ${toResult.state}` : ""}`);
+
+      // Fetch 10-day forecast for the destination
+      setLoadingForecast(true);
+      const weather = await getWeatherForLocation(toResult.lat, toResult.lon);
+      if (weather?.forecast) {
+        setDestinationForecast(weather.forecast);
+      }
+      setLoadingForecast(false);
+    };
+
+    autoGeocode();
+  }, [sharedLinkProcessed]);
 
   const waypoints = useMemo(() => {
     if (!hasRoute) return [];
@@ -311,6 +465,32 @@ export default function RouteWeatherCustomPage() {
 
       <div className="px-4 md:px-6 py-6">
         <div className="max-w-4xl mx-auto">
+          {shareParams && shareParams.to && (
+            <SharedTripSummary
+              fromCity={shareParams.from ? formatCityFromSlug(shareParams.from) : null}
+              toCity={formatCityFromSlug(shareParams.to)}
+              drive={shareParams.drive}
+              temp={shareParams.temp}
+              condition={shareParams.condition}
+            />
+          )}
+
+          {/* 10-day destination forecast for shared links */}
+          {loadingForecast && (
+            <div className="flex items-center gap-3 mb-6 p-4 bg-zinc-50 dark:bg-zinc-900 rounded-xl">
+              <div className="w-4 h-4 border-2 border-zinc-300 border-t-orange-500 rounded-full animate-spin" />
+              <span className="text-sm text-zinc-500 dark:text-zinc-400">Loading destination forecast...</span>
+            </div>
+          )}
+
+          {destinationForecast && destinationForecast.length > 0 && (
+            <DestinationForecast
+              forecast={destinationForecast}
+              selectedDate={selectedDate}
+              onSelectDate={(dateValue) => setSelectedDate(dateValue)}
+            />
+          )}
+
           {/* Location inputs */}
           <form onSubmit={handleSubmit} className="mb-6">
             <div className="flex flex-col sm:flex-row gap-3 mb-3">
@@ -365,8 +545,8 @@ export default function RouteWeatherCustomPage() {
             </div>
           )}
 
-          {/* Departure controls - only show after route is set */}
-          {hasRoute && (
+          {/* Departure controls - show after route is set OR for shared links with destination */}
+          {(hasRoute || (shareParams && toCoords)) && (
             <div className="mb-6 flex flex-wrap gap-4">
               <div>
                 <label htmlFor="departure-date" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Departure Date</label>
@@ -413,7 +593,7 @@ export default function RouteWeatherCustomPage() {
           )}
 
           {/* Prompt when no route yet */}
-          {!hasRoute && !geocodeError && (
+          {!hasRoute && !geocodeError && !shareParams && !isGeocoding && (
             <p className="text-sm text-zinc-400 dark:text-zinc-500 text-center py-8">
               Enter a starting location and destination above to see the weather along your route.
             </p>
