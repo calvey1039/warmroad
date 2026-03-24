@@ -1,7 +1,7 @@
 // Calculate distance between two coordinates using Haversine formula
 
 export const DEFAULT_MPG = 25;
-export const DEFAULT_GAS_PRICE = 2.93;
+export const DEFAULT_GAS_PRICE = 3.96;
 
 export function calculateDistance(
   lat1: number,

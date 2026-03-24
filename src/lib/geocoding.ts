@@ -209,6 +209,6 @@ export async function fetchGasPrice(): Promise<{ price: number; date: string; so
     };
   } catch (error) {
     console.error("Gas price fetch error:", error);
-    return { price: 2.93, date: new Date().toISOString().split("T")[0], source: "default" };
+    return { price: 3.96, date: new Date().toISOString().split("T")[0], source: "default" };
   }
 }
