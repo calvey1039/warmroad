@@ -176,6 +176,28 @@ export function meetsUpcomingWeekendCriteria(
   });
 }
 
+export function meetsNextNDaysCriteria(
+  weather: WeatherData | null,
+  minTemp: number | null,
+  maxTemp: number | null,
+  weatherCondition: WeatherCondition = "any",
+  days: number = 3
+): boolean {
+  if (!weather?.forecast) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const cutoff = new Date(today);
+  cutoff.setDate(cutoff.getDate() + days);
+  return weather.forecast.some(day => {
+    const d = new Date(day.date + "T12:00:00");
+    if (d < today || d >= cutoff) return false;
+    const meetsMin = minTemp === null || day.maxTemp >= minTemp;
+    const meetsMax = maxTemp === null || day.maxTemp <= maxTemp;
+    const meetsWeather = weatherCondition === "any" || getWeatherCategory(day.weatherCode) === weatherCondition;
+    return meetsMin && meetsMax && meetsWeather;
+  });
+}
+
 export function meetsTodayCriteria(
   weather: WeatherData | null,
   minTemp: number | null,

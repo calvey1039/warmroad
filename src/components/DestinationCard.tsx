@@ -229,51 +229,58 @@ export default function DestinationCard({
       onClick={onSelect}
     >
       <div className="p-5">
-        <button
-          onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
-          className={`absolute top-3 right-3 p-1.5 rounded-full transition-all duration-200 z-10 ${
-            isFavorite
-              ? "bg-red-100 dark:bg-red-900/30 text-red-500 hover:bg-red-200 dark:hover:bg-red-900/50"
-              : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-600 dark:hover:text-zinc-300"
-          }`}
-          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-        >
-          <svg className="w-4 h-4" fill={isFavorite ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-          </svg>
-        </button>
-
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-lg text-zinc-900 dark:text-zinc-100 tracking-tight truncate pr-8">{name}</h3>
+            <h3 className="font-semibold text-lg text-zinc-900 dark:text-zinc-100 tracking-tight truncate">{name}</h3>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">{state}</p>
           </div>
           {weather && warmestDay && (
-            <div className="flex flex-col items-end shrink-0 mr-6">
-              <span className="text-2xl font-light text-zinc-900 dark:text-zinc-100">{warmestDay.maxTemp}&deg;</span>
-              <span className="text-xs text-zinc-400 mt-0.5">
-                Warmest: {warmestDay.dayName}
-                {warmestDay.date ? `, ${new Date(warmestDay.date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : ""}
-              </span>
-              <Link
-                href={`/route-weather/${id}?fromLat=${userLat ?? ""}&fromLon=${userLon ?? ""}`}
-                onClick={(e) => e.stopPropagation()}
-                className="inline-flex items-center gap-1 text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-orange-600 transition-colors mt-1"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                </svg>
-                Route Weather
-              </Link>
-              <button
-                onClick={handleShare}
-                className="inline-flex items-center gap-1 text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-orange-600 transition-colors mt-1"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                </svg>
-                {copied ? "Copied!" : "Share Trip"}
-              </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="flex flex-col items-end">
+                <span className="text-2xl font-light text-zinc-900 dark:text-zinc-100">{warmestDay.maxTemp}&deg;</span>
+                <span className="text-xs text-zinc-400 mt-0.5">
+                  Warmest: {warmestDay.dayName}
+                  {warmestDay.date ? `, ${new Date(warmestDay.date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : ""}
+                </span>
+                <Link
+                  href={`/route-weather/${id}?fromLat=${userLat ?? ""}&fromLon=${userLon ?? ""}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-orange-600 transition-colors mt-1"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                  </svg>
+                  Route Weather
+                </Link>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <button
+                  onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+                  className={`p-1.5 rounded-full transition-all duration-200 ${
+                    isFavorite
+                      ? "bg-red-100 dark:bg-red-900/30 text-red-500 hover:bg-red-200 dark:hover:bg-red-900/50"
+                      : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-600 dark:hover:text-zinc-300"
+                  }`}
+                  aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                >
+                  <svg className="w-4 h-4" fill={isFavorite ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={handleShare}
+                  className={`p-1.5 rounded-full transition-all duration-200 ${
+                    copied
+                      ? "bg-green-100 dark:bg-green-900/30 text-green-600"
+                      : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-600 dark:hover:text-zinc-300"
+                  }`}
+                  aria-label={copied ? "Copied!" : "Share Trip"}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
         </div>

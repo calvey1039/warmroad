@@ -9,6 +9,7 @@ import {
   meetsTemperatureCriteria,
   meetsUpcomingWeekendCriteria,
   meetsTodayCriteria,
+  meetsNextNDaysCriteria,
   getMatchingDaysCount,
   hasGreatWeekend,
   weatherConditionLabels,
@@ -78,7 +79,7 @@ export default function Home() {
   const [gasPriceDate, setGasPriceDate] = useState("");
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
-  const [timeFilter, setTimeFilter] = useState<"next_10_days" | "this_weekend" | "today">("next_10_days");
+  const [timeFilter, setTimeFilter] = useState<"next_10_days" | "next_3_days" | "next_5_days" | "this_weekend" | "today">("next_10_days");
   const [sortBy, setSortBy] = useState("drive_time");
   const [mobileView, setMobileView] = useState<"list" | "map">("list");
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -212,6 +213,8 @@ export default function Home() {
     if (showFavoritesOnly) filtered = filtered.filter(d => favorites.has(d.id));
     if (timeFilter === "this_weekend") filtered = filtered.filter(d => meetsUpcomingWeekendCriteria(d.weather, currentFilter.min, currentFilter.max, weatherCondition));
     if (timeFilter === "today") filtered = filtered.filter(d => meetsTodayCriteria(d.weather, currentFilter.min, currentFilter.max, weatherCondition));
+    if (timeFilter === "next_3_days") filtered = filtered.filter(d => meetsNextNDaysCriteria(d.weather, currentFilter.min, currentFilter.max, weatherCondition, 3));
+    if (timeFilter === "next_5_days") filtered = filtered.filter(d => meetsNextNDaysCriteria(d.weather, currentFilter.min, currentFilter.max, weatherCondition, 5));
 
     filtered.sort((a, b) => {
       const aFav = favorites.has(a.id), bFav = favorites.has(b.id);
@@ -306,20 +309,6 @@ export default function Home() {
               <span className="ml-2 text-[10px] md:text-xs font-medium text-zinc-900 dark:text-zinc-100 whitespace-nowrap">{currentFilter.label}</span>
             </div>
 
-            <div className="flex items-center gap-0.5 bg-zinc-100 dark:bg-zinc-800 rounded-full px-3 py-0.5">
-              <span className="text-[10px] md:text-xs text-zinc-500 dark:text-zinc-400 mr-1">Drive Time:</span>
-              {[5, 8, 10, 12, 15, 20].map(h => (
-                <button key={h} onClick={() => setMaxDriveHours(h)} className={`px-2 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all ${maxDriveHours === h ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>{h}hr</button>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-0.5 bg-zinc-100 dark:bg-zinc-800 rounded-full px-3 py-0.5">
-              <span className="text-[10px] md:text-xs text-zinc-500 dark:text-zinc-400 mr-1">When:</span>
-              <button onClick={() => setTimeFilter("next_10_days")} className={`px-2 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all whitespace-nowrap ${timeFilter === "next_10_days" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>Next 10 Days</button>
-              <button onClick={() => setTimeFilter("this_weekend")} className={`px-2 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all whitespace-nowrap ${timeFilter === "this_weekend" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>This Weekend</button>
-              <button onClick={() => setTimeFilter("today")} className={`px-2 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all whitespace-nowrap ${timeFilter === "today" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>Today</button>
-            </div>
-
             <div className="flex items-center gap-1">
               <button onClick={() => setShowFavoritesOnly(p => !p)} className={`flex items-center gap-1 px-2.5 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all ${showFavoritesOnly ? "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>
                 <svg className="w-3 h-3" fill={showFavoritesOnly ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
@@ -332,6 +321,21 @@ export default function Home() {
                   <span className="hidden sm:inline">Share</span>
                 </button>
               )}
+            </div>
+
+            <div className="flex items-center gap-0.5 bg-zinc-100 dark:bg-zinc-800 rounded-full px-3 py-0.5">
+              <span className="text-[10px] md:text-xs text-zinc-500 dark:text-zinc-400 mr-1">Drive Time:</span>
+              {[5, 8, 10, 12, 15, 20].map(h => (
+                <button key={h} onClick={() => setMaxDriveHours(h)} className={`px-2 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all ${maxDriveHours === h ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>{h}hr</button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-0.5 bg-zinc-100 dark:bg-zinc-800 rounded-full px-3 py-0.5">
+              <button onClick={() => setTimeFilter("next_10_days")} className={`px-2 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all whitespace-nowrap ${timeFilter === "next_10_days" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>10 Days</button>
+              <button onClick={() => setTimeFilter("next_5_days")} className={`px-2 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all whitespace-nowrap ${timeFilter === "next_5_days" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>5 Days</button>
+              <button onClick={() => setTimeFilter("next_3_days")} className={`px-2 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all whitespace-nowrap ${timeFilter === "next_3_days" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>3 Days</button>
+              <button onClick={() => setTimeFilter("this_weekend")} className={`px-2 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all whitespace-nowrap ${timeFilter === "this_weekend" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>Weekend</button>
+              <button onClick={() => setTimeFilter("today")} className={`px-2 py-1 text-[10px] md:text-xs font-medium rounded-full transition-all whitespace-nowrap ${timeFilter === "today" ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>Today</button>
             </div>
 
             {locationName && <div className="text-[10px] md:text-xs text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full hidden sm:block">From: {locationName}</div>}
@@ -416,7 +420,7 @@ export default function Home() {
               ) : filteredDestinations.length === 0 && !loadingWeather ? (
                 <div className="text-center py-8 md:py-12 px-4 md:px-6">
                   <div className="text-3xl md:text-4xl mb-3 md:mb-4">{showFavoritesOnly ? "\u2764\uFE0F" : timeFilter !== "next_10_days" ? "\uD83D\uDCC5" : "\uD83C\uDF21\uFE0F"}</div>
-                  <h3 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2 text-sm md:text-base">{showFavoritesOnly ? "No favorites yet" : timeFilter === "this_weekend" ? "No weekend matches" : timeFilter === "today" ? "No matches today" : "No matching destinations found"}</h3>
+                  <h3 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2 text-sm md:text-base">{showFavoritesOnly ? "No favorites yet" : timeFilter === "this_weekend" ? "No weekend matches" : timeFilter === "today" ? "No matches today" : timeFilter === "next_3_days" ? "No matches in next 3 days" : timeFilter === "next_5_days" ? "No matches in next 5 days" : "No matching destinations found"}</h3>
                   <p className="text-xs md:text-sm text-zinc-500 leading-relaxed">{showFavoritesOnly ? "Click the heart icon on destinations to add them to your favorites." : timeFilter === "this_weekend" ? "No destinations within " + maxDriveHours + " hours match your filters for this weekend. Try adjusting temperature or weather." : timeFilter === "today" ? "No destinations within " + maxDriveHours + " hours match your filters for today. Try adjusting temperature or weather." : `No destinations within ${maxDriveHours} hours match your filters. Try adjusting temperature or weather.`}</p>
                 </div>
               ) : (
