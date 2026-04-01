@@ -1,7 +1,10 @@
 // Calculate distance between two coordinates using Haversine formula
+// A road detour factor of 1.35 is applied to approximate actual driving
+// distance, since roads don't follow straight lines between two points.
 
 export const DEFAULT_MPG = 25;
 export const DEFAULT_GAS_PRICE = 3.96;
+const ROAD_DETOUR_FACTOR = 1.35;
 
 export function calculateDistance(
   lat1: number,
@@ -19,7 +22,8 @@ export function calculateDistance(
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+  const straightLineDistance = R * c;
+  return straightLineDistance * ROAD_DETOUR_FACTOR;
 }
 
 function toRad(deg: number): number {
