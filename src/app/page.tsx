@@ -25,6 +25,7 @@ import {
   DEFAULT_MPG,
   DEFAULT_GAS_PRICE,
 } from "@/lib/distance";
+import { fetchDriveStatsBatch } from "@/lib/route-distance";
 import { geocodeLocation, fetchGasPrice } from "@/lib/geocoding";
 import DestinationCard from "@/components/DestinationCard";
 import Logo from "@/components/Logo";
@@ -189,14 +190,68 @@ export default function Home() {
   };
 
   const weatherFetchRef = useRef(0);
+  const routeStatsFetchRef = useRef(0);
+
+  // Real road-network drive stats per destination, keyed by destination id.
+  // Falls back to the haversine estimate until the network response arrives.
+  const [routeStatsById, setRouteStatsById] = useState<Record<string, { miles: number; hours: number }>>({});
+
+  // Reset stats when origin changes so we don't show stale numbers.
+  useEffect(() => {
+    setRouteStatsById({});
+  }, [userLocation?.lat, userLocation?.lon]);
+
+  // Estimate-only mapping (haversine) used for initial render and as a wide
+  // pre-filter. We deliberately broaden the haversine pre-filter window so
+  // destinations whose real drive time falls inside maxDriveHours are not
+  // dropped just because the straight-line estimate undershoots.
+  const destinationsHaversine = useMemo(() => {
+    if (!userLocation) return [];
+    return destinations.map((dest) => {
+      const distance = calculateDistance(userLocation.lat, userLocation.lon, dest.lat, dest.lon);
+      return { ...dest, distance, driveTime: estimateDriveTime(distance) };
+    });
+  }, [userLocation]);
+
+  // Fetch real drive stats for any destination that could plausibly fall within
+  // the current maxDriveHours window once routed on real roads. Uses a 1.6x
+  // buffer on the haversine estimate to absorb mountain/water detours.
+  useEffect(() => {
+    if (!userLocation || destinationsHaversine.length === 0) return;
+    const fetchId = ++routeStatsFetchRef.current;
+    const candidates = destinationsHaversine.filter(
+      (d) => d.driveTime <= maxDriveHours * 1.6
+    );
+    if (candidates.length === 0) return;
+    const need = candidates.filter((d) => !routeStatsById[d.id]);
+    if (need.length === 0) return;
+    (async () => {
+      const results = await fetchDriveStatsBatch(
+        userLocation,
+        need.map((d) => ({ lat: d.lat, lon: d.lon }))
+      );
+      if (routeStatsFetchRef.current !== fetchId) return;
+      setRouteStatsById((prev) => {
+        const next = { ...prev };
+        need.forEach((d, i) => {
+          next[d.id] = results[i];
+        });
+        return next;
+      });
+    })();
+  }, [userLocation, destinationsHaversine, maxDriveHours, routeStatsById]);
 
   const destinationsWithDistance = useMemo(() => {
     if (!userLocation) return [];
-    return destinations.map(dest => {
-      const distance = calculateDistance(userLocation.lat, userLocation.lon, dest.lat, dest.lon);
-      return { ...dest, distance, driveTime: estimateDriveTime(distance) };
-    }).filter(d => d.driveTime <= maxDriveHours).sort((a, b) => a.driveTime - b.driveTime);
-  }, [userLocation, maxDriveHours]);
+    return destinationsHaversine
+      .map((d) => {
+        const real = routeStatsById[d.id];
+        if (real) return { ...d, distance: real.miles, driveTime: real.hours };
+        return d;
+      })
+      .filter((d) => d.driveTime <= maxDriveHours)
+      .sort((a, b) => a.driveTime - b.driveTime);
+  }, [userLocation, destinationsHaversine, maxDriveHours, routeStatsById]);
 
   const destinationsWithWeather = useMemo(() =>
     destinationsWithDistance.map(d => ({ ...d, weather: weatherData[d.id] || null })),
