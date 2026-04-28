@@ -3,7 +3,7 @@
 // distance, since roads don't follow straight lines between two points.
 
 export const DEFAULT_MPG = 25;
-export const DEFAULT_GAS_PRICE = 3.96;
+export const DEFAULT_GAS_PRICE = 4.03;
 const ROAD_DETOUR_FACTOR = 1.35;
 
 export function calculateDistance(
