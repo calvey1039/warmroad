@@ -97,7 +97,7 @@ export default function DestinationCard({
     {
       id: "expedia",
       name: "Expedia",
-      url: `https://expedia.com/affiliate/xgQWywk?destination=${encodedDest}&startDate=${checkIn || ""}&endDate=${checkOut || ""}&rooms=1&adults=2`,
+      url: `https://www.expedia.com/Hotel-Search?destination=${encodedDest}&startDate=${checkIn || ""}&endDate=${checkOut || ""}&rooms=1&adults=2&affcid=xgQWywk`,
       icon: "\uD83C\uDFE8",
     },
     {
