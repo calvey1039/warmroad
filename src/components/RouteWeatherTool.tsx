@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { destinations } from "@/lib/destinations";
 import { calculateDistance, formatDriveTime, estimateDriveTime, getRouteWaypoints, type RouteWaypoint } from "@/lib/distance";
+import { fetchDriveStats } from "@/lib/route-distance";
 import { reverseGeocode } from "@/lib/geocoding";
 import {
   DropdownMenu,
@@ -204,9 +205,25 @@ export default function RouteWeatherTool({ destId }: RouteWeatherToolProps) {
   const [cityNames, setCityNames] = useState<Record<number, string>>({});
   const [originName, setOriginName] = useState("Your Location");
 
-  // Calculate distance and drive time
-  const dist = destination ? calculateDistance(fromLat, fromLon, destination.lat, destination.lon) : 0;
-  const driveHours = estimateDriveTime(dist);
+  // Calculate distance and drive time. Initialize with the haversine estimate
+  // for an instant render, then refine with the real road-network value.
+  const haversineMiles = destination ? calculateDistance(fromLat, fromLon, destination.lat, destination.lon) : 0;
+  const [routeStats, setRouteStats] = useState<{ miles: number; hours: number } | null>(null);
+  useEffect(() => {
+    if (!destination) {
+      setRouteStats(null);
+      return;
+    }
+    let cancelled = false;
+    fetchDriveStats(fromLat, fromLon, destination.lat, destination.lon).then((s) => {
+      if (!cancelled) setRouteStats(s);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [destination?.id, fromLat, fromLon]);
+  const dist = routeStats ? routeStats.miles : haversineMiles;
+  const driveHours = routeStats ? routeStats.hours : estimateDriveTime(haversineMiles);
 
   // Generate travel dates (next 10 days)
   const travelDates = useMemo(() => {
@@ -416,8 +433,8 @@ export default function RouteWeatherTool({ destId }: RouteWeatherToolProps) {
       {/* Disclaimer */}
       {!loading && routeWeather && routeWeather.length > 0 && (
         <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-6 text-center">
-          Weather data from Open-Meteo. Route is approximated as a straight line; actual driving route may vary.
-          Temperatures shown are for the estimated arrival time at each point along the route based on a typical drive speed for the trip's distance.
+          Weather data from Open-Meteo. Driving distance and time from OSRM road-network routing.
+          Temperatures shown are for the estimated arrival time at each point along the route.
         </p>
       )}
 

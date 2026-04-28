@@ -9,6 +9,7 @@ import {
   estimateDriveTime,
   formatDriveTime,
 } from "@/lib/distance";
+import { fetchDriveStatsBatch } from "@/lib/route-distance";
 
 interface NearbyDestination {
   id: string;
@@ -37,18 +38,33 @@ export default function CityOriginResults({
     let cancelled = false;
 
     async function fetchResults() {
-      // Calculate distances and filter to within 6 hours, excluding the origin city itself
-      const withDistance = destinations
+      // Pre-filter generously with the haversine estimate so we don't drop
+      // destinations whose real road-network drive time is within 6 hours but
+      // whose straight-line estimate undershoots (mountains, water, etc.).
+      const haversinePool = destinations
         .map((dest) => {
           const dist = calculateDistance(lat, lon, dest.lat, dest.lon);
           const driveTime = estimateDriveTime(dist);
           return { ...dest, driveTime, dist };
         })
+        .filter((d) => d.driveTime <= 9 && d.driveTime > 0.15);
+
+      // Refine with real driving distance/time from the routing API. Falls
+      // back to the haversine estimate per-destination if the API is
+      // unreachable.
+      const realStats = await fetchDriveStatsBatch(
+        { lat, lon },
+        haversinePool.map((d) => ({ lat: d.lat, lon: d.lon }))
+      );
+      if (cancelled) return;
+
+      const withReal = haversinePool
+        .map((d, i) => ({ ...d, driveTime: realStats[i].hours, dist: realStats[i].miles }))
         .filter((d) => d.driveTime <= 6 && d.driveTime > 0.25)
         .sort((a, b) => a.driveTime - b.driveTime);
 
       // Take top 6 destinations, preferring larger cities
-      const top = withDistance
+      const top = withReal
         .sort((a, b) => b.population - a.population)
         .slice(0, 6)
         .sort((a, b) => a.driveTime - b.driveTime);

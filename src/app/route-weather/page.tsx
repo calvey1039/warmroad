@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { getHourlyWeatherForLocation, getWeatherForLocation, type HourlyForecast, type DayForecast } from "@/lib/weather";
 import { calculateDistance, formatDriveTime, estimateDriveTime, getRouteWaypoints, type RouteWaypoint } from "@/lib/distance";
+import { fetchDriveStats } from "@/lib/route-distance";
 import { geocodeLocation, reverseGeocode } from "@/lib/geocoding";
 import {
   DropdownMenu,
@@ -289,8 +290,28 @@ export default function RouteWeatherCustomPage() {
 
   const hasRoute = fromCoords && toCoords;
 
-  const dist = hasRoute ? calculateDistance(fromCoords.lat, fromCoords.lon, toCoords.lat, toCoords.lon) : 0;
-  const driveHours = estimateDriveTime(dist);
+  const [routeStats, setRouteStats] = useState<{ miles: number; hours: number } | null>(null);
+
+  useEffect(() => {
+    if (!fromCoords || !toCoords) {
+      setRouteStats(null);
+      return;
+    }
+    let cancelled = false;
+    fetchDriveStats(fromCoords.lat, fromCoords.lon, toCoords.lat, toCoords.lon).then((s) => {
+      if (!cancelled) setRouteStats(s);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [fromCoords?.lat, fromCoords?.lon, toCoords?.lat, toCoords?.lon]);
+
+  const dist = routeStats
+    ? routeStats.miles
+    : hasRoute
+      ? calculateDistance(fromCoords.lat, fromCoords.lon, toCoords.lat, toCoords.lon)
+      : 0;
+  const driveHours = routeStats ? routeStats.hours : estimateDriveTime(dist);
 
   const travelDates = useMemo(() => {
     const dates: { value: string; label: string }[] = [];
@@ -675,8 +696,8 @@ export default function RouteWeatherCustomPage() {
           {/* Disclaimer */}
           {!loading && routeWeather && routeWeather.length > 0 && (
             <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-6 text-center">
-              Weather data from Open-Meteo. Route is approximated as a straight line; actual driving route may vary.
-              Temperatures shown are for the estimated arrival time at each point along the route based on a typical drive speed for the trip's distance.
+              Weather data from Open-Meteo. Driving distance and time from OSRM road-network routing.
+              Temperatures shown are for the estimated arrival time at each point along the route.
             </p>
           )}
 
