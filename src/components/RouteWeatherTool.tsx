@@ -417,7 +417,7 @@ export default function RouteWeatherTool({ destId }: RouteWeatherToolProps) {
       {!loading && routeWeather && routeWeather.length > 0 && (
         <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-6 text-center">
           Weather data from Open-Meteo. Route is approximated as a straight line; actual driving route may vary.
-          Temperatures shown are for the estimated arrival time at each point along the route based on an average speed of 55 mph.
+          Temperatures shown are for the estimated arrival time at each point along the route based on a typical drive speed for the trip's distance.
         </p>
       )}
 

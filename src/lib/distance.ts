@@ -1,10 +1,36 @@
-// Calculate distance between two coordinates using Haversine formula
-// A road detour factor of 1.35 is applied to approximate actual driving
-// distance, since roads don't follow straight lines between two points.
+// Drive distance and time estimates from straight-line (Haversine) coordinates.
+//
+// The road detour factor and average speed are not constants — they vary with
+// trip length. Short trips spend a larger share of their miles on surface
+// streets with stops and turns (high detour, low effective speed); long trips
+// are dominated by interstate highway miles (low detour, high effective speed).
+// Tiering both inputs on distance gives noticeably better estimates across the
+// full range from intra-city drives to cross-country trips, while keeping the
+// computation purely client-side.
 
 export const DEFAULT_MPG = 25;
 export const DEFAULT_GAS_PRICE = 4.03;
-const ROAD_DETOUR_FACTOR = 1.35;
+
+// Detour factor as a function of straight-line (haversine) miles.
+// Surface streets and local roads dominate short trips; interstates dominate
+// long trips and follow much straighter paths.
+function getRoadDetourFactor(haversineMiles: number): number {
+  if (haversineMiles < 15) return 1.4;
+  if (haversineMiles < 50) return 1.25;
+  if (haversineMiles < 150) return 1.18;
+  if (haversineMiles < 400) return 1.13;
+  return 1.1;
+}
+
+// Average drive speed (mph) as a function of road miles.
+// Short trips average city-street speeds; long trips average interstate speeds.
+function getAvgDriveSpeed(roadMiles: number): number {
+  if (roadMiles < 20) return 30;
+  if (roadMiles < 65) return 50;
+  if (roadMiles < 180) return 58;
+  if (roadMiles < 450) return 63;
+  return 65;
+}
 
 export function calculateDistance(
   lat1: number,
@@ -23,17 +49,16 @@ export function calculateDistance(
       Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const straightLineDistance = R * c;
-  return straightLineDistance * ROAD_DETOUR_FACTOR;
+  return straightLineDistance * getRoadDetourFactor(straightLineDistance);
 }
 
 function toRad(deg: number): number {
   return deg * (Math.PI / 180);
 }
 
-// Estimate drive time based on distance
+// Estimate drive time (hours) from road miles using a distance-tiered speed.
 export function estimateDriveTime(distanceMiles: number): number {
-  const avgSpeed = 55; // mph including traffic and breaks
-  return distanceMiles / avgSpeed;
+  return distanceMiles / getAvgDriveSpeed(distanceMiles);
 }
 
 export function formatDriveTime(hours: number): string {
@@ -86,7 +111,7 @@ export function getRouteWaypoints(
     const lat = fromLat + (toLat - fromLat) * fraction;
     const lon = fromLon + (toLon - fromLon) * fraction;
     const distFromStart = dist * fraction;
-    const hoursFromStart = distFromStart / 55;
+    const hoursFromStart = totalHours * fraction;
 
     let label: string;
     if (i === 0) {
