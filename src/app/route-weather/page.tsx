@@ -23,7 +23,7 @@ function BookingLinks({ destination }: { destination: string }) {
   const checkOutStr = fmt(checkOut);
 
   const lodgingSites = [
-    { id: "expedia", name: "Expedia", url: `https://www.expedia.com/Hotel-Search?destination=${encodedDest}&startDate=${checkInStr}&endDate=${checkOutStr}&rooms=1&adults=2`, icon: "\uD83C\uDFE8" },
+    { id: "expedia", name: "Expedia", url: `https://expedia.com/affiliate/xgQWywk?destination=${encodedDest}&startDate=${checkInStr}&endDate=${checkOutStr}&rooms=1&adults=2`, icon: "\uD83C\uDFE8" },
     { id: "vrbo", name: "VRBO", url: `https://www.vrbo.com/search?destination=${encodedDest}&startDate=${checkInStr}&endDate=${checkOutStr}&adults=2&affcid=ncpxw7r`, icon: "\uD83C\uDFE1" },
     { id: "booking", name: "Booking.com", url: `https://www.awin1.com/cread.php?awinmid=6776&awinaffid=2785874&ued=${encodeURIComponent(`https://www.booking.com/searchresults.html?ss=${destination}&checkin=${checkInStr}&checkout=${checkOutStr}`)}`, icon: "\uD83C\uDD71\uFE0F" },
     { id: "hotels", name: "Hotels.com", url: `https://www.hotels.com/Hotel-Search?destination=${encodedDest}&startDate=${checkInStr}&endDate=${checkOutStr}&rooms=1&adults=2&affcid=FpWwOIV`, icon: "\uD83C\uDFE9" },

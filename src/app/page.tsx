@@ -473,7 +473,7 @@ export default function Home() {
               const checkOut = warmestDay?.date ? (() => { const dt = new Date(warmestDay.date); dt.setDate(dt.getDate() + 2); return dt.toISOString().split("T")[0]; })() : "";
 
               const lodgingUrlMap: Record<string, string> = {
-                expedia: `https://www.expedia.com/Hotel-Search?destination=${encodedDest}&startDate=${checkIn}&endDate=${checkOut}&rooms=1&adults=2`,
+                expedia: `https://expedia.com/affiliate/xgQWywk?destination=${encodedDest}&startDate=${checkIn}&endDate=${checkOut}&rooms=1&adults=2`,
                 vrbo: `https://www.vrbo.com/search?destination=${encodedDest}&startDate=${checkIn}&endDate=${checkOut}&adults=2&affcid=ncpxw7r`,
                 booking: `https://www.awin1.com/cread.php?awinmid=6776&awinaffid=2785874&ued=${encodeURIComponent(`https://www.booking.com/searchresults.html?ss=${d.name}, ${d.state}&checkin=${checkIn}&checkout=${checkOut}`)}`,
                 hotels: `https://www.hotels.com/Hotel-Search?destination=${encodedDest}&startDate=${checkIn}&endDate=${checkOut}&rooms=1&adults=2&affcid=FpWwOIV`,
