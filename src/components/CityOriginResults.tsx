@@ -165,7 +165,7 @@ export default function CityOriginResults({
                 Book:
               </span>
               <a
-                href={`https://expedia.com/affiliate/xgQWywk?destination=${encodeURIComponent(`${dest.name}, ${dest.state}`)}&rooms=1&adults=2`}
+                href={`https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(`${dest.name}, ${dest.state}`)}&rooms=1&adults=2&affcid=xgQWywk`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[11px] text-zinc-500 hover:text-orange-600 transition-colors"
