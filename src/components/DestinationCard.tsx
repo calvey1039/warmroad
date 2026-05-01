@@ -161,7 +161,21 @@ export default function DestinationCard({
   );
 
   const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${name}, ${state}`)}`;
-  const tripAdvisorUrl = `https://www.tripadvisor.com/Search?q=${encodeURIComponent(`${name}, ${state}`)}`;
+
+  const activitiesSites = [
+    {
+      id: "tripadvisor",
+      name: "Tripadvisor",
+      url: `https://www.tripadvisor.com/Search?q=${encodeURIComponent(`${name}, ${state}`)}`,
+      icon: "🦉",
+    },
+    {
+      id: "spookystops",
+      name: "SpookyStops",
+      url: `https://spookystops.com/?q=${encodeURIComponent(`${name}, ${state}`)}`,
+      icon: "👻",
+    },
+  ];
 
   const dayMeetsFilter = (maxTemp: number, weatherCode: number) => {
     const meetsMin = tempFilter.min === null || maxTemp >= tempFilter.min;
@@ -360,12 +374,27 @@ export default function DestinationCard({
               Directions
             </a>
 
-            <a href={tripAdvisorUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 text-xs md:text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-orange-600 transition-colors">
-              Activities
-              <svg className="w-3 h-3 md:w-3.5 md:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
+            <DropdownMenu>
+              <DropdownMenuTrigger onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 text-xs md:text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-orange-600 transition-colors outline-none">
+                Activities
+                <svg className="w-3 h-3 md:w-3.5 md:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shadow-lg rounded-lg p-1 max-h-64 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                {activitiesSites.map((site) => (
+                  <DropdownMenuItem key={site.id} asChild>
+                    <a href={site.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-3 py-2 text-sm hover:text-orange-600 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-md cursor-pointer transition-colors text-zinc-700 dark:text-zinc-300">
+                      <span className="text-base">{site.icon}</span>
+                      {site.name}
+                      <svg className="w-3 h-3 ml-auto text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <DropdownMenu>
               <DropdownMenuTrigger onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 text-xs md:text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-orange-600 transition-colors outline-none">
