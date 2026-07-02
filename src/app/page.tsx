@@ -27,6 +27,7 @@ import {
 } from "@/lib/distance";
 import { fetchDriveStatsBatch } from "@/lib/route-distance";
 import { geocodeLocation, fetchGasPrice } from "@/lib/geocoding";
+import { buildExpediaAffiliateUrl } from "@/lib/expedia-affiliate";
 import DestinationCard from "@/components/DestinationCard";
 import Logo from "@/components/Logo";
 import { Slider } from "@/components/ui/slider";
@@ -523,22 +524,34 @@ export default function Home() {
               );
               const matchingDays = d.weather ? getMatchingDaysCount(d.weather, currentFilter.min, currentFilter.max, weatherCondition) : 0;
 
-              const encodedDest = encodeURIComponent(`${d.name}, ${d.state}`);
+              const destinationLabel = `${d.name}, ${d.state}`;
+              const encodedDest = encodeURIComponent(destinationLabel);
               const checkIn = warmestDay?.date || "";
               const checkOut = warmestDay?.date ? (() => { const dt = new Date(warmestDay.date); dt.setDate(dt.getDate() + 2); return dt.toISOString().split("T")[0]; })() : "";
 
               const lodgingUrlMap: Record<string, string> = {
-                expedia: `https://www.expedia.com/Hotel-Search?destination=${encodedDest}&startDate=${checkIn}&endDate=${checkOut}&rooms=1&adults=2&affcid=xgQWywk`,
+                expedia: buildExpediaAffiliateUrl({
+                  destination: destinationLabel,
+                  bookingType: "lodging",
+                  startDate: checkIn,
+                  endDate: checkOut,
+                }),
                 vrbo: `https://www.vrbo.com/search?destination=${encodedDest}&startDate=${checkIn}&endDate=${checkOut}&adults=2&affcid=ncpxw7r`,
                 booking: `https://www.awin1.com/cread.php?awinmid=6776&awinaffid=2785874&ued=${encodeURIComponent(`https://www.booking.com/searchresults.html?ss=${d.name}, ${d.state}&checkin=${checkIn}&checkout=${checkOut}`)}`,
                 hotels: `https://www.hotels.com/Hotel-Search?destination=${encodedDest}&startDate=${checkIn}&endDate=${checkOut}&rooms=1&adults=2&affcid=FpWwOIV`,
               };
               const flightsUrlMap: Record<string, string> = {
-                expedia_flights: `https://expedia.com/affiliate/6CA53pQ?destination=${encodedDest}`,
+                expedia_flights: buildExpediaAffiliateUrl({
+                  destination: destinationLabel,
+                  bookingType: "flights",
+                }),
                 booking_flights: `https://www.awin1.com/cread.php?awinmid=6776&awinaffid=2785874&campaign=flights&ued=${encodeURIComponent("https://www.booking.com/flights/index.html")}`,
               };
               const carsUrlMap: Record<string, string> = {
-                expedia_cars: `https://expedia.com/affiliate/6XiIxgP?destination=${encodedDest}`,
+                expedia_cars: buildExpediaAffiliateUrl({
+                  destination: destinationLabel,
+                  bookingType: "cars",
+                }),
                 booking_cars: `https://www.awin1.com/cread.php?awinmid=6776&awinaffid=2785874&campaign=CarRentals&ued=${encodeURIComponent("https://www.booking.com/cars/index.html")}`,
               };
 

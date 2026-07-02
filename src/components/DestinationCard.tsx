@@ -14,6 +14,7 @@ import type { WeatherData, WeatherCondition } from "@/lib/weather";
 import { getWeatherCategory, hasGreatWeekend as computeGreatWeekend } from "@/lib/weather";
 import { formatDriveTime, calculateFuelCost, formatFuelCost } from "@/lib/distance";
 import { getLodgingEstimate } from "@/lib/lodging-estimates";
+import { buildExpediaAffiliateUrl } from "@/lib/expedia-affiliate";
 
 interface TempFilterConfig {
   min: number | null;
@@ -91,13 +92,19 @@ export default function DestinationCard({
 
   const lodgingEstimate = getLodgingEstimate(id, population);
 
-  const encodedDest = encodeURIComponent(`${name}, ${state}`);
+  const destinationLabel = `${name}, ${state}`;
+  const encodedDest = encodeURIComponent(destinationLabel);
 
   const lodgingSites = [
     {
       id: "expedia",
       name: "Expedia",
-      url: `https://www.expedia.com/Hotel-Search?destination=${encodedDest}&startDate=${checkIn || ""}&endDate=${checkOut || ""}&rooms=1&adults=2&affcid=xgQWywk`,
+      url: buildExpediaAffiliateUrl({
+        destination: destinationLabel,
+        bookingType: "lodging",
+        startDate: checkIn,
+        endDate: checkOut,
+      }),
       icon: "\uD83C\uDFE8",
     },
     {
@@ -124,7 +131,10 @@ export default function DestinationCard({
     {
       id: "expedia_flights",
       name: "Expedia",
-      url: `https://expedia.com/affiliate/6CA53pQ?destination=${encodedDest}`,
+      url: buildExpediaAffiliateUrl({
+        destination: destinationLabel,
+        bookingType: "flights",
+      }),
       icon: "\uD83C\uDFE8",
     },
     {
@@ -139,7 +149,10 @@ export default function DestinationCard({
     {
       id: "expedia_cars",
       name: "Expedia",
-      url: `https://expedia.com/affiliate/6XiIxgP?destination=${encodedDest}`,
+      url: buildExpediaAffiliateUrl({
+        destination: destinationLabel,
+        bookingType: "cars",
+      }),
       icon: "\uD83C\uDFE8",
     },
     {
