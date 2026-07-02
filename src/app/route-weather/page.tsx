@@ -12,6 +12,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { buildExpediaAffiliateUrl } from "@/lib/expedia-affiliate";
 
 function BookingLinks({ destination }: { destination: string }) {
   const encodedDest = encodeURIComponent(destination);
@@ -24,19 +25,19 @@ function BookingLinks({ destination }: { destination: string }) {
   const checkOutStr = fmt(checkOut);
 
   const lodgingSites = [
-    { id: "expedia", name: "Expedia", url: `https://www.expedia.com/Hotel-Search?destination=${encodedDest}&startDate=${checkInStr}&endDate=${checkOutStr}&rooms=1&adults=2&affcid=xgQWywk`, icon: "\uD83C\uDFE8" },
+    { id: "expedia", name: "Expedia", url: buildExpediaAffiliateUrl({ destination, bookingType: "lodging", startDate: checkInStr, endDate: checkOutStr }), icon: "\uD83C\uDFE8" },
     { id: "vrbo", name: "VRBO", url: `https://www.vrbo.com/search?destination=${encodedDest}&startDate=${checkInStr}&endDate=${checkOutStr}&adults=2&affcid=ncpxw7r`, icon: "\uD83C\uDFE1" },
     { id: "booking", name: "Booking.com", url: `https://www.awin1.com/cread.php?awinmid=6776&awinaffid=2785874&ued=${encodeURIComponent(`https://www.booking.com/searchresults.html?ss=${destination}&checkin=${checkInStr}&checkout=${checkOutStr}`)}`, icon: "\uD83C\uDD71\uFE0F" },
     { id: "hotels", name: "Hotels.com", url: `https://www.hotels.com/Hotel-Search?destination=${encodedDest}&startDate=${checkInStr}&endDate=${checkOutStr}&rooms=1&adults=2&affcid=FpWwOIV`, icon: "\uD83C\uDFE9" },
   ];
 
   const flightSites = [
-    { id: "expedia_flights", name: "Expedia", url: `https://expedia.com/affiliate/6CA53pQ?destination=${encodedDest}`, icon: "\uD83C\uDFE8" },
+    { id: "expedia_flights", name: "Expedia", url: buildExpediaAffiliateUrl({ destination, bookingType: "flights" }), icon: "\uD83C\uDFE8" },
     { id: "booking_flights", name: "Booking.com", url: `https://www.awin1.com/cread.php?awinmid=6776&awinaffid=2785874&campaign=flights&ued=${encodeURIComponent("https://www.booking.com/flights/index.html")}`, icon: "\uD83C\uDD71\uFE0F" },
   ];
 
   const carSites = [
-    { id: "expedia_cars", name: "Expedia", url: `https://expedia.com/affiliate/6XiIxgP?destination=${encodedDest}`, icon: "\uD83C\uDFE8" },
+    { id: "expedia_cars", name: "Expedia", url: buildExpediaAffiliateUrl({ destination, bookingType: "cars" }), icon: "\uD83C\uDFE8" },
     { id: "booking_cars", name: "Booking.com", url: `https://www.awin1.com/cread.php?awinmid=6776&awinaffid=2785874&campaign=CarRentals&ued=${encodeURIComponent("https://www.booking.com/cars/index.html")}`, icon: "\uD83C\uDD71\uFE0F" },
   ];
 
