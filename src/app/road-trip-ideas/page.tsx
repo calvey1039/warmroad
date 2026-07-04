@@ -23,6 +23,24 @@ export default function RoadTripIdeasPage() {
         Road to check current weather conditions and plan your drive.
       </p>
 
+      <div className="mb-12">
+        <Link
+          href="/road-trip-ideas/beat-the-heat"
+          className="block p-5 bg-zinc-50 rounded-lg hover:bg-zinc-100 transition-colors group"
+        >
+          <h2 className="text-lg font-semibold text-zinc-900 group-hover:text-orange-600 transition-colors mb-2">
+            Beat the Heat
+          </h2>
+          <p className="text-zinc-600 text-sm leading-relaxed mb-4">
+            Discover cooler destinations within driving distance and escape
+            extreme summer temperatures.
+          </p>
+          <span className="inline-block px-4 py-2 text-sm font-medium bg-orange-600 text-white rounded-lg group-hover:bg-orange-700 transition-colors">
+            Explore Cooler Trips
+          </span>
+        </Link>
+      </div>
+
       <div className="space-y-5 mb-12">
         {featuredTrips.map((trip) => (
           <div key={trip.name} className="p-5 bg-zinc-50 rounded-lg">
