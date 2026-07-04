@@ -30,6 +30,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = [
     { url: `${BASE_URL}/`, lastModified: today, changeFrequency: "weekly", priority: 1.0 },
     { url: `${BASE_URL}/road-trip-ideas`, lastModified: today, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE_URL}/road-trip-ideas/beat-the-heat`, lastModified: today, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE_URL}/route-weather`, lastModified: today, changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE_URL}/motorcycle-road-trips`, lastModified: today, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE_URL}/privacy`, lastModified: today, changeFrequency: "monthly", priority: 0.3 },
