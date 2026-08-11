@@ -449,7 +449,7 @@ export default function Home() {
       </div>
 
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        <aside className={`${mobileView === "list" ? "flex" : "hidden"} md:flex w-full md:w-[380px] lg:w-[420px] flex-1 md:flex-none min-h-0 md:shrink-0 border-r border-zinc-100 dark:border-zinc-800 flex-col bg-white dark:bg-zinc-950 overflow-hidden`}>
+        <aside className={`${mobileView === "list" ? "flex" : "hidden"} md:flex w-full md:w-[420px] lg:w-[460px] flex-1 md:flex-none min-h-0 md:shrink-0 border-r border-zinc-100 dark:border-zinc-800 flex-col bg-white dark:bg-zinc-950 overflow-hidden`}>
           {!isLoading && filteredDestinations.length > 0 && (
             <div className="shrink-0 flex items-center justify-between px-3 md:px-4 py-2 border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
               <span className="text-[10px] md:text-xs text-zinc-400 dark:text-zinc-500">{filteredDestinations.length} result{filteredDestinations.length !== 1 ? "s" : ""}</span>

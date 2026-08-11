@@ -53,3 +53,6 @@ deploy.zip
 
 # Same IDE
 .same/
+
+# Local Netlify folder
+.netlify
